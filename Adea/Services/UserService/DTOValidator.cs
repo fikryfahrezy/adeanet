@@ -2,12 +2,21 @@ using FluentValidation;
 
 namespace Adea.Services.UserService;
 
-public class RegisterDTOValidator : AbstractValidator<RegisterRequestBodyDTO>
+public class RegisterRequestBodyDTOValidator : AbstractValidator<RegisterRequestBodyDTO>
 {
-	public RegisterDTOValidator()
+	public RegisterRequestBodyDTOValidator()
 	{
 		RuleFor(v => v.Username).NotEmpty();
 		RuleFor(v => v.Password).NotEmpty();
-		RuleFor(v => v.IsOfficer).NotNull();
+	}
+}
+
+
+public class LoginRequestBodyDTODTOValidator : AbstractValidator<LoginRequestBodyDTO>
+{
+	public LoginRequestBodyDTODTOValidator()
+	{
+		RuleFor(v => v.Username).NotEmpty();
+		RuleFor(v => v.Password).NotEmpty();
 	}
 }

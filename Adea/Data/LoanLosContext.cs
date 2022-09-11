@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Adea.Models;
 
+namespace Adea.Data;
+
 public partial class LoanLosDbContext : DbContext
 {
 
@@ -159,9 +161,5 @@ public partial class LoanLosDbContext : DbContext
 				.HasMaxLength(200)
 				.HasColumnName("username");
 		});
-
-		OnModelCreatingPartial(modelBuilder);
 	}
-
-	partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

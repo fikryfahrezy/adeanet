@@ -1,53 +1,78 @@
+using FluentValidation;
 using Adea.Common;
 using Adea.Models;
+using Adea.Exceptions;
 
 namespace Adea.Services.UserService;
 
-public class UserServices
+public class UserService
 {
 
-	private readonly UserRepository _repository;
+	private readonly UserRepository _userRepository;
 
-	public UserServices(UserRepository repository)
+	public UserService(UserRepository userRepository)
 	{
-		_repository = repository;
+		_userRepository = userRepository;
 	}
 
 	public async Task<RegisterResponseBodyDTO> SaveUser(RegisterRequestBodyDTO request)
 	{
+		var validator = new RegisterRequestBodyDTOValidator();
+		await validator.ValidateAndThrowAsync(request);
+
+		var existUser = await _userRepository.GetUserByUsernameAsync(request.Username);
+
+		if (existUser != null)
+		{
+			throw new UnprocessableEntityException($"Username {request.Username} already exist");
+		}
+
 		var hashedPassword = Argon2.Hash(
 			type: Argon2Type.ID,
 			word: request.Password,
-			bytes: 16,
-			config: new Argon2Param()
+			keyLen: 16,
+			config: null
 		);
 
 		var user = new User
 		{
 			Username = request.Username,
-			IsOfficer = request.IsOfficer,
 			Password = hashedPassword,
+			IsOfficer = request.IsOfficer
 		};
 
-		await _repository.InsertUserAsync(user);
+		await _userRepository.InsertUserAsync(user);
 
 		return new RegisterResponseBodyDTO
 		{
 			Id = user.Id,
-			IsOfficer = user.IsOfficer,
+			IsOfficer = user.IsOfficer
 		};
 	}
 
-	public async Task<List<UserResponseBodyDTO>> GerUsers()
+	public async Task<LoginResponseBodyDTO> VerifyUser(LoginRequestBodyDTO request)
 	{
-		var users = await _repository.GetUsersAsync();
+		var validator = new LoginRequestBodyDTODTOValidator();
+		await validator.ValidateAndThrowAsync(request);
 
-		return users.ConvertAll<UserResponseBodyDTO>(u => new UserResponseBodyDTO
+		var user = await _userRepository.GetUserByUsernameAsync(request.Username);
+
+		if (user == null)
 		{
-			Id = u.Id,
-			IsOfficer = u.IsOfficer,
-			Username = u.Username
-		});
-	}
+			throw new NotFoundException($"Username {request.Username} not exist");
+		}
 
+		var isPasswordMatch = Argon2.Verify(request.Password, user.Password);
+
+		if (!isPasswordMatch)
+		{
+			throw new UnauthorizedException("Password not match");
+		}
+
+		return new LoginResponseBodyDTO
+		{
+			Id = user.Id,
+			IsOfficer = user.IsOfficer
+		};
+	}
 }

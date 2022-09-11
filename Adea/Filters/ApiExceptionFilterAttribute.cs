@@ -1,4 +1,5 @@
 using Adea.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -14,8 +15,9 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 		_exceptionHandlers = new Dictionary<Type, Action<ExceptionContext>>
 			{
 				{ typeof(NotFoundException), HandleNotFoundException },
-				{ typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
-				{ typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+				{ typeof(UnauthorizedException), HandleUnauthorizedException },
+				{ typeof(UnprocessableEntityException), HandleUnprocessableEntityException },
+				{ typeof(ValidationException), HandleValidationException },
 			};
 	}
 
@@ -34,25 +36,9 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 			_exceptionHandlers[type].Invoke(context);
 			return;
 		}
-
-		if (!context.ModelState.IsValid)
-		{
-			HandleInvalidModelStateException(context);
-			return;
-		}
 	}
 
-	private void HandleInvalidModelStateException(ExceptionContext context)
-	{
-		var details = new ValidationProblemDetails(context.ModelState)
-		{
-			Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
-		};
 
-		context.Result = new BadRequestObjectResult(details);
-
-		context.ExceptionHandled = true;
-	}
 
 	private void HandleNotFoundException(ExceptionContext context)
 	{
@@ -70,7 +56,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 		context.ExceptionHandled = true;
 	}
 
-	private void HandleUnauthorizedAccessException(ExceptionContext context)
+	private void HandleUnauthorizedException(ExceptionContext context)
 	{
 		var details = new ProblemDetails
 		{
@@ -87,19 +73,37 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 		context.ExceptionHandled = true;
 	}
 
-	private void HandleForbiddenAccessException(ExceptionContext context)
+	private void HandleUnprocessableEntityException(ExceptionContext context)
 	{
 		var details = new ProblemDetails
 		{
-			Status = StatusCodes.Status403Forbidden,
+			Status = StatusCodes.Status422UnprocessableEntity,
 			Title = "Forbidden",
-			Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+			Type = "https://tools.ietf.org/html/rfc4918.html#section-11.2"
 		};
 
 		context.Result = new ObjectResult(details)
 		{
-			StatusCode = StatusCodes.Status403Forbidden
+			StatusCode = StatusCodes.Status422UnprocessableEntity
 		};
+
+		context.ExceptionHandled = true;
+	}
+
+	private void HandleValidationException(ExceptionContext context)
+	{
+		var exception = (ValidationException)context.Exception;
+
+		var errors = exception.Errors
+					.GroupBy(e => e.PropertyName, e => e.ErrorMessage)
+					.ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());
+
+		var details = new ValidationProblemDetails(errors)
+		{
+			Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1"
+		};
+
+		context.Result = new BadRequestObjectResult(details);
 
 		context.ExceptionHandled = true;
 	}

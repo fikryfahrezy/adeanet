@@ -6,28 +6,22 @@ namespace Adea.Services.UserService;
 [ApiController]
 public class UsersController : ControllerBase
 {
-	private readonly UserServices _service;
+	private readonly UserService _userService;
 
-	public UsersController(UserServices service)
+	public UsersController(UserService userService)
 	{
-		_service = service;
+		_userService = userService;
 	}
 
 	[HttpPost("register")]
-	public async Task<ActionResult<RegisterResponseBodyDTO>> Register(RegisterRequestBodyDTO requestBody)
+	public async Task<ActionResult<RegisterResponseBodyDTO>> Register([FromBody] RegisterRequestBodyDTO requestBody)
 	{
-		return await _service.SaveUser(requestBody);
+		return await _userService.SaveUser(requestBody);
 	}
 
 	[HttpPost("login")]
-	public async Task<ActionResult<LoginResponseBodyDTO>> Login(LoginRequestBodyDTO requestBody)
+	public async Task<ActionResult<LoginResponseBodyDTO>> Login([FromBody] LoginRequestBodyDTO requestBody)
 	{
-		return await Task.Run(() => new LoginResponseBodyDTO());
-	}
-
-	[HttpGet]
-	public async Task<ActionResult<IEnumerable<UserResponseBodyDTO>>> GetUsers()
-	{
-		return await _service.GerUsers();
+		return await _userService.VerifyUser(requestBody);
 	}
 }

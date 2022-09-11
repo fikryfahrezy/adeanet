@@ -24,18 +24,20 @@ public record Argon2Param
 public class Argon2
 {
 
-	private static int defaultBytes = 16;
-	private static int defaultDegreeOfParallelism = 16;
-	private static int defaultMemorySize = 8192;
-	private static int defaultIterations = 15;
-	private static byte[] defaultAssociatedData = null;
-	private static byte[] defaultKnownSecret = null;
+	private const int defaultBytes = 16;
+	private const int defaultDegreeOfParallelism = 16;
+	private const int defaultMemorySize = 8192;
+	private const int defaultIterations = 15;
+	private const byte[] defaultAssociatedData = null;
+	private const byte[] defaultKnownSecret = null;
+	private const int defaultKeyLen = 16;
+	private const int defaultSaltLen = 16;
 
-	private static byte[] HashToArgon2id(string word, byte[] salt, int bytes, Argon2Param config)
+	private static byte[] HashToArgon2i(byte[] word, byte[] salt, int bytes, Argon2Param config)
 	{
 
 
-		var subject = new Argon2id(Encoding.ASCII.GetBytes(word))
+		var subject = new Argon2i(word)
 		{
 			DegreeOfParallelism = config.DegreeOfParallelism,
 			Iterations = config.Iterations,
@@ -57,16 +59,73 @@ public class Argon2
 
 	}
 
-	public static string Hash(Argon2Type type, string word, int bytes, Argon2Param config)
+	private static byte[] HashToArgon2d(byte[] word, byte[] salt, int bytes, Argon2Param config)
 	{
-		var salt = RandomNumberGenerator.GetBytes(bytes);
+
+
+		var subject = new Argon2d(word)
+		{
+			DegreeOfParallelism = config.DegreeOfParallelism,
+			Iterations = config.Iterations,
+			MemorySize = config.MemorySize,
+			Salt = salt,
+		};
+
+		if (config.AssociatedData != null)
+		{
+			subject.AssociatedData = config.AssociatedData;
+		}
+
+		if (config.KnownSecret != null)
+		{
+			subject.KnownSecret = config.KnownSecret;
+		}
+
+		return subject.GetBytes(bytes);
+
+	}
+
+	private static byte[] HashToArgon2id(byte[] word, byte[] salt, int bytes, Argon2Param config)
+	{
+
+
+		var subject = new Argon2id(word)
+		{
+			DegreeOfParallelism = config.DegreeOfParallelism,
+			Iterations = config.Iterations,
+			MemorySize = config.MemorySize,
+			Salt = salt,
+		};
+
+		if (config.AssociatedData != null)
+		{
+			subject.AssociatedData = config.AssociatedData;
+		}
+
+		if (config.KnownSecret != null)
+		{
+			subject.KnownSecret = config.KnownSecret;
+		}
+
+		return subject.GetBytes(bytes);
+
+	}
+
+	public static string Hash(Argon2Type type, string word, Argon2Param? config, int keyLen = defaultKeyLen, int saltLen = defaultSaltLen)
+	{
+		var hashConfig = config != null ? config : new Argon2Param();
+		var salt = RandomNumberGenerator.GetBytes(saltLen);
+		var byteWord = Encoding.ASCII.GetBytes(word);
 
 		var hashedBytes = type switch
 		{
-			_ => HashToArgon2id(word, salt, bytes, config),
+			Argon2Type.I => HashToArgon2i(byteWord, salt, keyLen, hashConfig),
+			Argon2Type.D => HashToArgon2d(byteWord, salt, keyLen, hashConfig),
+			Argon2Type.ID => HashToArgon2id(byteWord, salt, keyLen, hashConfig),
+			_ => HashToArgon2id(byteWord, salt, keyLen, hashConfig),
 		};
 
-		return $"$argon2{Argon2TypeToString(type)}$m={config.MemorySize},t={config.Iterations},p={config.DegreeOfParallelism},b={bytes}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hashedBytes)}";
+		return $"$argon2{Argon2TypeToString(type)}$m={hashConfig.MemorySize},t={hashConfig.Iterations},p={hashConfig.DegreeOfParallelism}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hashedBytes)}";
 	}
 
 	public static bool Verify(string word, string hashedWord)
@@ -98,16 +157,43 @@ public class Argon2
 		var iterations = defaultDegreeOfParallelism;
 		var degreeOfPrallelism = defaultDegreeOfParallelism;
 		var memorySize = defaultMemorySize;
-		var bytes = defaultBytes;
 
 		argon2Param.TryGetValue("t", out iterations);
 		argon2Param.TryGetValue("p", out degreeOfPrallelism);
 		argon2Param.TryGetValue("m", out memorySize);
-		argon2Param.TryGetValue("b", out bytes);
+
+		var byteWord = Encoding.ASCII.GetBytes(word);
+		var decodedSalt = Convert.FromBase64String(hashedWords[3]);
+		var decodedHash = Convert.FromBase64String(hashedWords[4]);
+		var keyLen = decodedHash.Length;
 
 		var newHashedBytes = StringToArgon2Type(type[1]) switch
 		{
-			_ => HashToArgon2id(word, Convert.FromBase64String(hashedWords[3]), bytes, new Argon2Param()
+			Argon2Type.I => HashToArgon2i(byteWord, decodedSalt, keyLen, new Argon2Param()
+			{
+				Iterations = iterations,
+				DegreeOfParallelism = degreeOfPrallelism,
+				MemorySize = memorySize,
+				AssociatedData = defaultAssociatedData,
+				KnownSecret = defaultKnownSecret
+			}),
+			Argon2Type.D => HashToArgon2d(byteWord, decodedSalt, keyLen, new Argon2Param()
+			{
+				Iterations = iterations,
+				DegreeOfParallelism = degreeOfPrallelism,
+				MemorySize = memorySize,
+				AssociatedData = defaultAssociatedData,
+				KnownSecret = defaultKnownSecret
+			}),
+			Argon2Type.ID => HashToArgon2id(byteWord, decodedSalt, keyLen, new Argon2Param()
+			{
+				Iterations = iterations,
+				DegreeOfParallelism = degreeOfPrallelism,
+				MemorySize = memorySize,
+				AssociatedData = defaultAssociatedData,
+				KnownSecret = defaultKnownSecret
+			}),
+			_ => HashToArgon2id(byteWord, decodedSalt, keyLen, new Argon2Param()
 			{
 				Iterations = iterations,
 				DegreeOfParallelism = degreeOfPrallelism,
@@ -117,16 +203,22 @@ public class Argon2
 			}),
 		};
 
-		return Convert.FromBase64String(hashedWords[4]).SequenceEqual(newHashedBytes);
+		return decodedHash.SequenceEqual(newHashedBytes);
 	}
 
 	private static string Argon2TypeToString(Argon2Type type) => type switch
 	{
+		Argon2Type.I => "i",
+		Argon2Type.D => "d",
+		Argon2Type.ID => "id",
 		_ => "id",
 	};
 
 	private static Argon2Type StringToArgon2Type(string type) => type switch
 	{
+		"i" => Argon2Type.I,
+		"d" => Argon2Type.D,
+		"id" => Argon2Type.ID,
 		_ => Argon2Type.ID,
 	};
 }

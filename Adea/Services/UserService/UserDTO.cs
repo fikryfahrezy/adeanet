@@ -1,33 +1,42 @@
+using System.Text.Json.Serialization;
+
 namespace Adea.Services.UserService;
 
 public record RegisterRequestBodyDTO
 {
+	[JsonPropertyName("username")]
+	public string Username { get; set; } = "";
+
+	[JsonPropertyName("password")]
+	public string Password { get; set; } = "";
+
+	[JsonPropertyName("is_officer")]
 	public bool IsOfficer { get; set; }
-	public string? Username { get; set; }
-	public string? Password { get; set; }
 }
 
 public record RegisterResponseBodyDTO
 {
-	public bool? IsOfficer { get; set; }
-	public string? Id { get; set; }
+	[JsonPropertyName("id")]
+	public string Id { get; set; } = "";
+
+	[JsonPropertyName("is_officer")]
+	public bool IsOfficer { get; set; }
 }
 
 public record LoginRequestBodyDTO
 {
-	public string? Username { get; set; }
-	public string? Password { get; set; }
+	[JsonPropertyName("username")]
+	public string Username { get; set; } = "";
+
+	[JsonPropertyName("password")]
+	public string Password { get; set; } = "";
 }
 
 public record LoginResponseBodyDTO
 {
-	public bool IsOfficer { get; set; }
-	public string? Id { get; set; }
-}
+	[JsonPropertyName("id")]
+	public string Id { get; set; } = "";
 
-public record UserResponseBodyDTO
-{
-	public string? Id { get; set; }
-	public string? Username { get; set; }
-	public bool? IsOfficer { get; set; }
+	[JsonPropertyName("is_officer")]
+	public bool IsOfficer { get; set; }
 }

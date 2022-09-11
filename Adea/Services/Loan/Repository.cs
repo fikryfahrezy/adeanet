@@ -1,5 +1,6 @@
-namespace Adea.Services.Loan;
+using Adea.Data;
 
+namespace Adea.Services.Loan;
 public class LoanRepository
 {
 	private readonly LoanLosDbContext _dbContext;
