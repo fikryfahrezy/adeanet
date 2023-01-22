@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Adea.Services.User;
 
-namespace Adea.Services.UserService;
+namespace Adea.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

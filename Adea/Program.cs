@@ -1,11 +1,10 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Adea.Filters;
-using Adea.Data;
-using Adea.Services.Loan;
-using Adea.Services.UserService;
+using Adea.Services.Data;
+using Adea.Services.User;
+using static Adea.Services.Common.JsonPropertyUtil;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +24,34 @@ builder.Services
 	{
 		options.Filters.Add<ApiExceptionFilterAttribute>();
 	})
-	.AddFluentValidation(x => x.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()));
+	.AddJsonOptions(option =>
+	{
+		option.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
+	});
+
+FluentValidation.ValidatorOptions.Global.PropertyNameResolver = (type, member, expression) =>
+{
+	if (member != null)
+	{
+		return GetJsonPropertyName(type, member.Name);
+	}
+	return null;
+};
+
+FluentValidation.ValidatorOptions.Global.DisplayNameResolver = (type, member, expression) =>
+{
+	if (member != null)
+	{
+		return GetJsonPropertyName(type, member.Name);
+	}
+	return null;
+};
+
+builder.Services
+	.AddFluentValidationAutoValidation()
+	.AddFluentValidationClientsideAdapters();
+
+
 builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelStateInvalidFilter = true);
 
 var app = builder.Build();
