@@ -1,9 +1,9 @@
 using FluentValidation;
-using Adea.Common;
-using Adea.Models;
-using Adea.Exceptions;
+using Adea.Services.Common;
+using Adea.Services.Models;
+using Adea.Services.Exceptions;
 
-namespace Adea.Services.UserService;
+namespace Adea.Services.User;
 
 public class UserService
 {
@@ -34,7 +34,7 @@ public class UserService
 			config: null
 		);
 
-		var user = new User
+		var user = new UserDAO
 		{
 			Username = request.Username,
 			Password = hashedPassword,

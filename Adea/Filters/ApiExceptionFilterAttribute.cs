@@ -1,7 +1,7 @@
-using Adea.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Adea.Services.Exceptions;
 
 namespace Adea.Filters;
 

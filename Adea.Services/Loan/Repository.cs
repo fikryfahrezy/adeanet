@@ -1,4 +1,4 @@
-using Adea.Data;
+using Adea.Services.Data;
 
 namespace Adea.Services.Loan;
 public class LoanRepository

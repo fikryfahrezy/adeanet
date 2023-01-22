@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Adea.Models;
+using Adea.Services.Models;
 
-namespace Adea.Data;
+namespace Adea.Services.Data;
 
 public partial class LoanLosDbContext : DbContext
 {
@@ -11,12 +11,12 @@ public partial class LoanLosDbContext : DbContext
 	{
 	}
 
-	public virtual DbSet<LoanApplication> LoanApplications { get; set; } = null!;
-	public virtual DbSet<User> Users { get; set; } = null!;
+	public virtual DbSet<LoanApplicationDAO> LoanApplications { get; set; } = null!;
+	public virtual DbSet<UserDAO> Users { get; set; } = null!;
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.Entity<LoanApplication>(entity =>
+		modelBuilder.Entity<LoanApplicationDAO>(entity =>
 		{
 			entity.ToTable("loan_applications");
 
@@ -133,7 +133,7 @@ public partial class LoanLosDbContext : DbContext
 				.HasConstraintName("loan_applications_user_id_fkey");
 		});
 
-		modelBuilder.Entity<User>(entity =>
+		modelBuilder.Entity<UserDAO>(entity =>
 		{
 			entity.ToTable("users");
 

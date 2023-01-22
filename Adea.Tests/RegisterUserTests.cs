@@ -4,9 +4,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using NUnit.Framework;
-using Adea.Data;
-using Adea.Exceptions;
-using Adea.Services.UserService;
+using Adea.Services.Data;
+using Adea.Services.Exceptions;
+using Adea.Services.User;
 
 namespace Adea.Tests;
 

@@ -2,7 +2,7 @@ using System.Text;
 using System.Security.Cryptography;
 using Konscious.Security.Cryptography;
 
-namespace Adea.Common;
+namespace Adea.Services.Common;
 
 public enum Argon2Type
 {
@@ -17,8 +17,8 @@ public record Argon2Param
 	public int DegreeOfParallelism = 16;
 	public int MemorySize = 8192;
 	public int Iterations = 15;
-	public byte[] AssociatedData = null;
-	public byte[] KnownSecret = null;
+	public byte[]? AssociatedData = null;
+	public byte[]? KnownSecret = null;
 }
 
 public class Argon2

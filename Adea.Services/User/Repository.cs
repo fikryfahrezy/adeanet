@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Adea.Data;
-using Adea.Models;
+using Adea.Services.Data;
+using Adea.Services.Models;
 
-namespace Adea.Services.UserService;
+namespace Adea.Services.User;
 
 public class UserRepository
 {
@@ -14,13 +14,13 @@ public class UserRepository
 		_dbContext = dbContext;
 	}
 
-	public async Task InsertUserAsync(User user)
+	public async Task InsertUserAsync(UserDAO user)
 	{
 		_dbContext.Users.Add(user);
 		await _dbContext.SaveChangesAsync();
 	}
 
-	public async Task<User?> GetUserByUsernameAsync(string username)
+	public async Task<UserDAO?> GetUserByUsernameAsync(string username)
 	{
 		return await _dbContext.Users.SingleOrDefaultAsync(u => u.Username == username);
 	}

@@ -1,6 +1,6 @@
-﻿namespace Adea.Models;
+﻿namespace Adea.Services.Models;
 
-public partial class LoanApplication
+public partial class LoanApplicationDAO
 {
 	public string Id { get; set; } = null!;
 	public string UserId { get; set; } = null!;
@@ -26,6 +26,6 @@ public partial class LoanApplication
 	public DateTime? CreatedDate { get; set; }
 	public DateTime? UpdatedDate { get; set; }
 
-	public virtual User? Officer { get; set; }
-	public virtual User User { get; set; } = null!;
+	public virtual UserDAO? Officer { get; set; }
+	public virtual UserDAO User { get; set; } = null!;
 }
