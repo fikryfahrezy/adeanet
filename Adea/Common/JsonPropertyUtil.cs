@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Adea.Services.Common;
+namespace Adea.Common;
 
 public static class JsonPropertyUtil
 {

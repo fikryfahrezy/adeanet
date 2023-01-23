@@ -3,7 +3,7 @@ name: CI/CD for AdeaNET
 on: [push, pull_request]
 
 env:
-  DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
+  DOTNET_VERSION: '7.x.x' # The .NET SDK version to use
 
 jobs:
   ci:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - uses: actions/cache@v3

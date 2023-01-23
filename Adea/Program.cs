@@ -4,7 +4,7 @@ using FluentValidation.AspNetCore;
 using Adea.Filters;
 using Adea.Services.Data;
 using Adea.Services.User;
-using static Adea.Services.Common.JsonPropertyUtil;
+using static Adea.Common.JsonPropertyUtil;
 
 var builder = WebApplication.CreateBuilder(args);
 
