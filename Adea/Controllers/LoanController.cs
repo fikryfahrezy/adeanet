@@ -1,15 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using Adea.Services.Loan;
+using Adea.Loan;
 
 namespace Adea.Controllers;
 
 [Route("api/[controller]")]
 public class LoansController : ControllerBase
 {
-	private readonly LoanService _service;
+	private readonly LoanService _loanService;
 
-	public LoansController(LoanService service)
+	public LoansController(LoanService loanService)
 	{
-		_service = service;
+		_loanService = loanService;
+	}
+
+	[HttpPost("create")]
+	public async Task<ActionResult<string>> PostLoanApplication([FromForm] CreatLoanRequestBodyDTO loanRequest)
+	{
+		return await _loanService.CreateLoan(loanRequest);
 	}
 }

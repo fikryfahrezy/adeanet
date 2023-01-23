@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Adea.Services.User;
+namespace Adea.User;
 
 public class RegisterRequestBodyDTOValidator : AbstractValidator<RegisterRequestBodyDTO>
 {

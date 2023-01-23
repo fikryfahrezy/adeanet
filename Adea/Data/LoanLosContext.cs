@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Adea.Services.Models;
+using Adea.Models;
 
-namespace Adea.Services.Data;
+namespace Adea.Data;
 
 public partial class LoanLosDbContext : DbContext
 {

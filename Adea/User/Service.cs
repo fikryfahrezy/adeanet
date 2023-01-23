@@ -1,9 +1,9 @@
 using FluentValidation;
-using Adea.Services.Common;
-using Adea.Services.Models;
-using Adea.Services.Exceptions;
+using Adea.Common;
+using Adea.Models;
+using Adea.Exceptions;
 
-namespace Adea.Services.User;
+namespace Adea.User;
 
 public class UserService
 {

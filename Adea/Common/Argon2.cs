@@ -2,7 +2,7 @@ using System.Text;
 using System.Security.Cryptography;
 using Konscious.Security.Cryptography;
 
-namespace Adea.Services.Common;
+namespace Adea.Common;
 
 public enum Argon2Type
 {

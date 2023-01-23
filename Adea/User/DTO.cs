@@ -1,17 +1,18 @@
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
-namespace Adea.Services.User;
+namespace Adea.User;
 
 public record RegisterRequestBodyDTO
 {
-	[JsonPropertyNameAttribute("username")]
+	[BindProperty(Name = "username")]
 	public string Username { get; set; } = "";
 
-	[JsonPropertyNameAttribute("password")]
+	[BindProperty(Name = "password")]
 	public string Password { get; set; } = "";
 
-	[JsonPropertyNameAttribute("is_officer")]
-	public bool IsOfficer { get; set; }
+	[BindProperty(Name = "is_officer")]
+	public bool IsOfficer { get; set; } = false;
 }
 
 public record RegisterResponseBodyDTO
@@ -25,10 +26,10 @@ public record RegisterResponseBodyDTO
 
 public record LoginRequestBodyDTO
 {
-	[JsonPropertyNameAttribute("username")]
+	[BindProperty(Name = "username")]
 	public string Username { get; set; } = "";
 
-	[JsonPropertyNameAttribute("password")]
+	[BindProperty(Name = "password")]
 	public string Password { get; set; } = "";
 }
 

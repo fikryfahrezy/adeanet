@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Adea.Services.Data;
-using Adea.Services.Models;
+using Adea.Data;
+using Adea.Models;
 
-namespace Adea.Services.User;
+namespace Adea.User;
 
 public class UserRepository
 {

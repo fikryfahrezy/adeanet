@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation.AspNetCore;
 using Adea.Filters;
-using Adea.Services.Data;
-using Adea.Services.User;
-using static Adea.Common.JsonPropertyUtil;
+using Adea.Data;
+using Adea.User;
+using Adea.Loan;
+using static Adea.Common.RequestFieldMap;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,24 +17,20 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 
-// builder.Services.AddScoped<LoanRepository>();
-// builder.Services.AddScoped<LoanService>();
+builder.Services.AddScoped<LoanRepository>();
+builder.Services.AddScoped<LoanService>();
 
 builder.Services
 	.AddControllers(options =>
 	{
 		options.Filters.Add<ApiExceptionFilterAttribute>();
-	})
-	.AddJsonOptions(option =>
-	{
-		option.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
 	});
 
 FluentValidation.ValidatorOptions.Global.PropertyNameResolver = (type, member, expression) =>
 {
 	if (member != null)
 	{
-		return GetJsonPropertyName(type, member.Name);
+		return GetPropertyName(type, member.Name);
 	}
 	return null;
 };
@@ -42,7 +39,7 @@ FluentValidation.ValidatorOptions.Global.DisplayNameResolver = (type, member, ex
 {
 	if (member != null)
 	{
-		return GetJsonPropertyName(type, member.Name);
+		return GetPropertyName(type, member.Name);
 	}
 	return null;
 };

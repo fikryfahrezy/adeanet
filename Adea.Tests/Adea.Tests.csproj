@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Adea\Adea.csproj" />
-    <ProjectReference Include="..\Adea.Services\Adea.Services.csproj" />
   </ItemGroup>
 
 </Project>

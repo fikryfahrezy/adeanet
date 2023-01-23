@@ -4,20 +4,19 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 using NUnit.Framework;
-using Adea.Services.Data;
-using Adea.Services.Exceptions;
-using Adea.Services.User;
+using Adea.Data;
+using Adea.Exceptions;
+using Adea.User;
 
 namespace Adea.Tests;
 
-[TestFixture]
-public class LoginUserTests
+public class LoginUserTests : IDisposable
 {
 	private DbConnection _connection;
 	private DbContextOptions<LoanLosDbContext> _contextOptions;
 
-	[OneTimeSetUp]
-	public void Init()
+	#region ConstructorAndDispose
+	public LoginUserTests()
 	{
 		// Create and open a connection. This creates the SQLite in-memory database, which will persist until the connection is closed
 		// at the end of the test (see Dispose below).
@@ -37,11 +36,13 @@ public class LoginUserTests
 
 	LoanLosDbContext CreateContext() => new LoanLosDbContext(_contextOptions);
 
-	[Test]
+	public void Dispose() => _connection.Dispose();
+	#endregion
+
+	[Test(Description = "Login successfully")]
 	public async Task VerifyUser_PropperData_Success()
 	{
 		using var context = CreateContext();
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
@@ -66,13 +67,36 @@ public class LoginUserTests
 		var verifiedUser = await service.VerifyUser(identity);
 		Assert.NotNull(verifiedUser.Id);
 		Assert.AreEqual(savedUser.Id, verifiedUser.Id);
+
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
 
-	[Test]
-	public async Task VerifyUser_PropperData_PasswordNotMatch()
+	static object[] VerifyUserFailCases =
+	{
+		// Login fail, password not match
+		new object[] {
+			typeof(UnauthorizedException),
+			new LoginRequestBodyDTO
+			{
+				Username = "username",
+				Password = "passwordx",
+			},
+		},
+		// Login fail, user not found
+		new object[] {
+			typeof(NotFoundException),
+			new LoginRequestBodyDTO
+			{
+				Username = "usernamex",
+				Password = "password",
+			},
+		},
+	};
+
+	[TestCaseSource(nameof(VerifyUserFailCases))]
+	public async Task VerifyUser_WrongCredential_Fail(Type type, LoginRequestBodyDTO request)
 	{
 		using var context = CreateContext();
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
@@ -87,56 +111,26 @@ public class LoginUserTests
 		var savedUser = await service.SaveUser(user);
 		Assert.NotNull(savedUser.Id);
 
+		Assert.ThrowsAsync(type, async () => await service.VerifyUser(request));
 
-		var identity = new LoginRequestBodyDTO
-		{
-			Username = "username",
-			Password = "passwordx",
-		};
-
-		Assert.ThrowsAsync(typeof(UnauthorizedException), async () => await service.VerifyUser(identity));
-	}
-
-	[Test]
-	public async Task VerifyUser_PropperData_NotFound()
-	{
-		using var context = CreateContext();
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
-
-		var repository = new UserRepository(context);
-		var service = new UserService(repository);
-
-		var user = new RegisterRequestBodyDTO
-		{
-			Username = "username",
-			Password = "password",
-			IsOfficer = true,
-		};
-
-		var savedUser = await service.SaveUser(user);
-		Assert.NotNull(savedUser.Id);
-
-
-		var identity = new LoginRequestBodyDTO
-		{
-			Username = "usernamex",
-			Password = "password",
-		};
-
-		Assert.ThrowsAsync(typeof(NotFoundException), async () => await service.VerifyUser(identity));
 	}
 
-	static object[] SaveUserValidationCases =
+
+	static object[] VerifyUserValidationCases =
 	{
+		// Login fail, no input provided
 		new object[] {
 			new LoginRequestBodyDTO {
 			},
 		},
+		// Login fail, no username provided
 		new object[] {
 			new LoginRequestBodyDTO {
 				Password = "password",
 			},
 		},
+		// Login fail, no password provided
 		new object[] {
 			new LoginRequestBodyDTO {
 				Username = "username",
@@ -144,15 +138,16 @@ public class LoginUserTests
 		},
 	};
 
-	[TestCaseSource(nameof(SaveUserValidationCases))]
-	public async Task SaveUser_Validation_Fail(LoginRequestBodyDTO request)
+	[TestCaseSource(nameof(VerifyUserValidationCases))]
+	public async Task VerifyUser_Validation_Fail(LoginRequestBodyDTO request)
 	{
 		using var context = CreateContext();
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
 
 		Assert.ThrowsAsync(typeof(ValidationException), async () => await service.VerifyUser(request));
+
+		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
 }

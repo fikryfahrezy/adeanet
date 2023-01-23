@@ -1,4 +1,4 @@
-﻿namespace Adea.Services.Models;
+﻿namespace Adea.Models;
 
 public partial class LoanApplicationDAO
 {

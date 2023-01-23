@@ -1,4 +1,4 @@
-﻿namespace Adea.Services.Exceptions;
+﻿namespace Adea.Exceptions;
 
 public class UnauthorizedException : Exception
 {

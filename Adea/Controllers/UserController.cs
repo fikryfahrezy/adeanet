@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Adea.Services.User;
+using Adea.User;
 
 namespace Adea.Controllers;
 
