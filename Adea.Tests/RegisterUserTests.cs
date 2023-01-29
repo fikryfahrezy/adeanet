@@ -3,7 +3,7 @@ using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using NUnit.Framework;
+using Xunit;
 using Adea.Data;
 using Adea.Exceptions;
 using Adea.User;
@@ -39,27 +39,28 @@ public class RegisterUserTests : IDisposable
 	public void Dispose() => _connection.Dispose();
 	#endregion
 
-	static object[] SuccessSaveUserCases =
-	{
-		// Register as officer successfully
-		new object[] {
-			new RegisterRequestBodyDTO {
-				Username = "nonexsistofficerusername",
-				Password = "password",
-				IsOfficer = true,
+	public static IEnumerable<object[]> SuccessSaveUserCases
+		=> new object[][] {
+			// Register as officer successfully
+			new object[] {
+				new RegisterRequestBodyDTO {
+					Username = "nonexsistofficerusername",
+					Password = "password",
+					IsOfficer = true,
+				},
 			},
-		},
-		// Register as non officer successfully
-		new object[] {
-			new RegisterRequestBodyDTO {
-				Username = "nonexsistnonofficerusername",
-				Password = "password",
-				IsOfficer = false,
+			// Register as non officer successfully
+			new object[] {
+				new RegisterRequestBodyDTO {
+					Username = "nonexsistnonofficerusername",
+					Password = "password",
+					IsOfficer = false,
+				},
 			},
-		},
-	};
+		};
 
-	[TestCaseSource(nameof(SuccessSaveUserCases))]
+	[Theory]
+	[MemberData(nameof(SuccessSaveUserCases))]
 	public async Task SaveUser_ProperData_Success(RegisterRequestBodyDTO request)
 	{
 		using var context = CreateContext();
@@ -83,7 +84,7 @@ public class RegisterUserTests : IDisposable
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
 
-	[Test(Description = "Register fail, username exist")]
+	[Fact(DisplayName = "Register fail, username exist")]
 	public async Task SaveUser_DuplicateUsername_Fail()
 	{
 		using var context = CreateContext();
@@ -100,33 +101,34 @@ public class RegisterUserTests : IDisposable
 
 		var serviceResponse = await service.SaveUser(user);
 		Assert.NotNull(serviceResponse.Id);
-		Assert.ThrowsAsync(typeof(UnprocessableEntityException), async () => await service.SaveUser(user));
+		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUser(user));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
 
-	static object[] SaveUserValidationCases =
-	{
-		// Register fail, no input provided
-		new object[] {
-			new RegisterRequestBodyDTO {
+	public static IEnumerable<object[]> SaveUserValidationCases
+		=> new object[][] {
+			// Register fail, no input provided
+			new object[] {
+				new RegisterRequestBodyDTO {
+				},
 			},
-		},
-		// Register fail, no username provided
-		new object[] {
-			new RegisterRequestBodyDTO {
-				Password = "password",
+			// Register fail, no username provided
+			new object[] {
+				new RegisterRequestBodyDTO {
+					Password = "password",
+				},
 			},
-		},
-		// Register fail, no password provided
-		new object[] {
-			new RegisterRequestBodyDTO {
-				Username = "username",
+			// Register fail, no password provided
+			new object[] {
+				new RegisterRequestBodyDTO {
+					Username = "username",
+				},
 			},
-		},
-	};
+		};
 
-	[TestCaseSource(nameof(SaveUserValidationCases))]
+	[Theory]
+	[MemberData(nameof(SaveUserValidationCases))]
 	public async Task SaveUser_Validation_Fail(RegisterRequestBodyDTO request)
 	{
 		using var context = CreateContext();
@@ -134,7 +136,7 @@ public class RegisterUserTests : IDisposable
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
 
-		Assert.ThrowsAsync(typeof(ValidationException), async () => await service.SaveUser(request));
+		await Assert.ThrowsAsync<ValidationException>(async () => await service.SaveUser(request));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
