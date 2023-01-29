@@ -15,7 +15,7 @@ public class UserService
 		_userRepository = userRepository;
 	}
 
-	public async Task<RegisterResponseBodyDTO> SaveUser(RegisterRequestBodyDTO request)
+	public async Task<RegisterResponseBodyDTO> SaveUserAsync(RegisterRequestBodyDTO request)
 	{
 		var validator = new RegisterRequestBodyDTOValidator();
 		await validator.ValidateAndThrowAsync(request);
@@ -50,7 +50,7 @@ public class UserService
 		};
 	}
 
-	public async Task<LoginResponseBodyDTO> VerifyUser(LoginRequestBodyDTO request)
+	public async Task<LoginResponseBodyDTO> VerifyUserAsync(LoginRequestBodyDTO request)
 	{
 		var validator = new LoginRequestBodyDTODTOValidator();
 		await validator.ValidateAndThrowAsync(request);

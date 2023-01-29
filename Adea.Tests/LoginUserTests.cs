@@ -54,7 +54,7 @@ public class LoginUserTests : IDisposable
 			IsOfficer = true,
 		};
 
-		var savedUser = await service.SaveUser(user);
+		var savedUser = await service.SaveUserAsync(user);
 		Assert.NotNull(savedUser.Id);
 
 
@@ -64,7 +64,7 @@ public class LoginUserTests : IDisposable
 			Password = "password",
 		};
 
-		var verifiedUser = await service.VerifyUser(identity);
+		var verifiedUser = await service.VerifyUserAsync(identity);
 		Assert.NotNull(verifiedUser.Id);
 		Assert.Equal(savedUser.Id, verifiedUser.Id);
 
@@ -109,10 +109,10 @@ public class LoginUserTests : IDisposable
 			IsOfficer = true,
 		};
 
-		var savedUser = await service.SaveUser(user);
+		var savedUser = await service.SaveUserAsync(user);
 		Assert.NotNull(savedUser.Id);
 
-		await Assert.ThrowsAsync(type, async () => await service.VerifyUser(request));
+		await Assert.ThrowsAsync(type, async () => await service.VerifyUserAsync(request));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
@@ -148,7 +148,7 @@ public class LoginUserTests : IDisposable
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
 
-		await Assert.ThrowsAsync<ValidationException>(async () => await service.VerifyUser(request));
+		await Assert.ThrowsAsync<ValidationException>(async () => await service.VerifyUserAsync(request));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}

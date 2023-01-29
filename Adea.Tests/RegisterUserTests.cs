@@ -75,10 +75,10 @@ public class RegisterUserTests : IDisposable
 			IsOfficer = true,
 		};
 
-		var firstServiceResponse = await service.SaveUser(user);
+		var firstServiceResponse = await service.SaveUserAsync(user);
 		Assert.NotNull(firstServiceResponse.Id);
 
-		var secondServiceResponse = await service.SaveUser(request);
+		var secondServiceResponse = await service.SaveUserAsync(request);
 		Assert.NotNull(secondServiceResponse.Id);
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
@@ -99,9 +99,9 @@ public class RegisterUserTests : IDisposable
 			IsOfficer = true,
 		};
 
-		var serviceResponse = await service.SaveUser(user);
+		var serviceResponse = await service.SaveUserAsync(user);
 		Assert.NotNull(serviceResponse.Id);
-		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUser(user));
+		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUserAsync(user));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}
@@ -136,7 +136,7 @@ public class RegisterUserTests : IDisposable
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
 
-		await Assert.ThrowsAsync<ValidationException>(async () => await service.SaveUser(request));
+		await Assert.ThrowsAsync<ValidationException>(async () => await service.SaveUserAsync(request));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}

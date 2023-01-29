@@ -5,11 +5,18 @@ using Adea.Filters;
 using Adea.Data;
 using Adea.User;
 using Adea.Loan;
+using Adea.Common;
+using Adea.Options;
 using static Adea.Common.RequestFieldMap;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<LoanLosDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("LoanLosContextPSQL")));
+builder.Services.AddOptions<AppEnvOptions>()
+	.Bind(builder.Configuration.GetSection(AppEnvOptions.AppEnv))
+	.ValidateDataAnnotations()
+	.ValidateOnStart();
+
+builder.Services.AddDbContext<LoanLosDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("LoanDatabase")));
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
@@ -17,6 +24,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 
+builder.Services.AddSingleton<FileUploader>();
 builder.Services.AddScoped<LoanRepository>();
 builder.Services.AddScoped<LoanService>();
 

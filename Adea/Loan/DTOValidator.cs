@@ -9,7 +9,7 @@ public class CreatLoanRequestBodyDTOValidator : AbstractValidator<CreatLoanReque
 		RuleFor(v => v.FullName).NotEmpty();
 		RuleFor(v => v.BirthDate).NotEmpty();
 		RuleFor(v => v.FullAddress).NotEmpty();
-		RuleFor(v => v.Phone).NotEmpty().Must(v => v.ToString().Length < 10 || v.ToString().Length > 15);
+		RuleFor(v => v.Phone).MinimumLength(10).MaximumLength(15);
 		RuleFor(v => v.ExpInYear).NotEmpty().GreaterThan(0);
 		RuleFor(v => v.ActiveFieldNumber).NotEmpty().GreaterThan(0);
 		RuleFor(v => v.SowSeedsPerCycle).NotEmpty().GreaterThan(0);

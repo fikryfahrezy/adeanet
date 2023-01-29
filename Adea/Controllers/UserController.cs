@@ -3,26 +3,26 @@ using Adea.User;
 
 namespace Adea.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
-public class UsersController : ControllerBase
+public class AuthController : ControllerBase
 {
 	private readonly UserService _userService;
 
-	public UsersController(UserService userService)
+	public AuthController(UserService userService)
 	{
 		_userService = userService;
 	}
 
 	[HttpPost("register")]
-	public async Task<ActionResult<RegisterResponseBodyDTO>> Register([FromBody] RegisterRequestBodyDTO requestBody)
+	public async Task<ActionResult<RegisterResponseBodyDTO>> RegisterAsync([FromBody] RegisterRequestBodyDTO requestBody)
 	{
-		return await _userService.SaveUser(requestBody);
+		return await _userService.SaveUserAsync(requestBody);
 	}
 
 	[HttpPost("login")]
-	public async Task<ActionResult<LoginResponseBodyDTO>> Login([FromBody] LoginRequestBodyDTO requestBody)
+	public async Task<ActionResult<LoginResponseBodyDTO>> LoginAsync([FromBody] LoginRequestBodyDTO requestBody)
 	{
-		return await _userService.VerifyUser(requestBody);
+		return await _userService.VerifyUserAsync(requestBody);
 	}
 }

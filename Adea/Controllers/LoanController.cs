@@ -3,19 +3,19 @@ using Adea.Loan;
 
 namespace Adea.Controllers;
 
-[Route("api/[controller]")]
-public class LoansController : ControllerBase
+[Route("[controller]")]
+public class LoanController : ControllerBase
 {
 	private readonly LoanService _loanService;
 
-	public LoansController(LoanService loanService)
+	public LoanController(LoanService loanService)
 	{
 		_loanService = loanService;
 	}
 
 	[HttpPost("create")]
-	public async Task<ActionResult<string>> PostLoanApplication([FromForm] CreatLoanRequestBodyDTO loanRequest)
+	public async Task<ActionResult<string>> PostLoanApplicationAsync([FromForm] CreatLoanRequestBodyDTO loanRequest)
 	{
-		return await _loanService.CreateLoan(loanRequest);
+		return await _loanService.CreateLoanAsync(loanRequest);
 	}
 }

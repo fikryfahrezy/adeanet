@@ -6,7 +6,6 @@ public static class RequestFieldMap
 {
 	public static string GetPropertyName(Type propertyType, string propertyName)
 	{
-		;
 		var jsonPropertyName =
 			propertyType.GetProperties()
 			.Where(p => p.Name == propertyName)

@@ -14,7 +14,7 @@ public record CreatLoanRequestBodyDTO
 	public string FullAddress { get; set; } = "";
 
 	[BindProperty(Name = "phone")]
-	public int Phone { get; set; } = 0;
+	public string Phone { get; set; } = "";
 
 	[BindProperty(Name = "other_business")]
 	public string OtherBusiness { get; set; } = "";
