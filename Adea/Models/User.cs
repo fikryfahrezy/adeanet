@@ -1,13 +1,11 @@
 ﻿namespace Adea.Models;
 
-public partial class UserDAO
+public class UserDAO
 {
 	public UserDAO()
 	{
 		Id = Guid.NewGuid().ToString();
 		CreatedDate = DateTime.Now;
-		LoanApplicationOfficers = new HashSet<LoanApplicationDAO>();
-		LoanApplicationUsers = new HashSet<LoanApplicationDAO>();
 	}
 
 	public string Id { get; set; } = "";
@@ -16,6 +14,6 @@ public partial class UserDAO
 	public bool IsOfficer { get; set; }
 	public DateTime CreatedDate { get; set; }
 
-	public virtual ICollection<LoanApplicationDAO> LoanApplicationOfficers { get; set; }
-	public virtual ICollection<LoanApplicationDAO> LoanApplicationUsers { get; set; }
+	public ICollection<LoanApplicationDAO>? LoanApplicationOfficers { get; set; } = null;
+	public ICollection<LoanApplicationDAO>? LoanApplicationUsers { get; set; } = null;
 }

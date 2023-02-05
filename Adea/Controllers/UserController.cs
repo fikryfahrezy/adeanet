@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Adea.User;
+using FluentValidation;
 
 namespace Adea.Controllers;
 
@@ -17,12 +18,16 @@ public class AuthController : ControllerBase
 	[HttpPost("register")]
 	public async Task<ActionResult<RegisterResponseBodyDTO>> RegisterAsync([FromBody] RegisterRequestBodyDTO requestBody)
 	{
-		return await _userService.SaveUserAsync(requestBody);
+        var validator = new RegisterRequestBodyDTOValidator();
+        await validator.ValidateAndThrowAsync(requestBody);
+        return await _userService.SaveUserAsync(requestBody);
 	}
 
 	[HttpPost("login")]
 	public async Task<ActionResult<LoginResponseBodyDTO>> LoginAsync([FromBody] LoginRequestBodyDTO requestBody)
 	{
-		return await _userService.VerifyUserAsync(requestBody);
+        var validator = new LoginRequestBodyDTODTOValidator();
+        await validator.ValidateAndThrowAsync(requestBody);
+        return await _userService.VerifyUserAsync(requestBody);
 	}
 }

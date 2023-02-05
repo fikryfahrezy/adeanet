@@ -78,7 +78,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 		var details = new ProblemDetails
 		{
 			Status = StatusCodes.Status422UnprocessableEntity,
-			Title = "Forbidden",
+			Title = "Unprocessable Entity",
 			Type = "https://tools.ietf.org/html/rfc4918.html#section-11.2"
 		};
 

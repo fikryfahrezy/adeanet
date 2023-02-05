@@ -1,4 +1,3 @@
-using FluentValidation;
 using Adea.Common;
 using Adea.Models;
 using Adea.Exceptions;
@@ -17,15 +16,7 @@ public class UserService
 
 	public async Task<RegisterResponseBodyDTO> SaveUserAsync(RegisterRequestBodyDTO request)
 	{
-		var validator = new RegisterRequestBodyDTOValidator();
-		await validator.ValidateAndThrowAsync(request);
-
-		var existUser = await _userRepository.GetUserByUsernameAsync(request.Username);
-
-		if (existUser != null)
-		{
-			throw new UnprocessableEntityException($"Username {request.Username} already exist");
-		}
+		await _userRepository.CheckUsernameExistAndThrowAsync(request.Username);
 
 		var hashedPassword = Argon2.Hash(
 			type: Argon2Type.ID,
@@ -52,22 +43,8 @@ public class UserService
 
 	public async Task<LoginResponseBodyDTO> VerifyUserAsync(LoginRequestBodyDTO request)
 	{
-		var validator = new LoginRequestBodyDTODTOValidator();
-		await validator.ValidateAndThrowAsync(request);
-
 		var user = await _userRepository.GetUserByUsernameAsync(request.Username);
-
-		if (user == null)
-		{
-			throw new NotFoundException($"Username {request.Username} not exist");
-		}
-
-		var isPasswordMatch = Argon2.Verify(request.Password, user.Password);
-
-		if (!isPasswordMatch)
-		{
-			throw new UnauthorizedException("Password not match");
-		}
+		Argon2.VerifyAndThrow(request.Password, user.Password);
 
 		return new LoginResponseBodyDTO
 		{

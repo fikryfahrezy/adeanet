@@ -2,7 +2,6 @@
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using FluentValidation;
 using Xunit;
 using Adea.Data;
 using Adea.Exceptions;
@@ -102,41 +101,6 @@ public class RegisterUserTests : IDisposable
 		var serviceResponse = await service.SaveUserAsync(user);
 		Assert.NotNull(serviceResponse.Id);
 		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUserAsync(user));
-
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
-	}
-
-	public static IEnumerable<object[]> SaveUserValidationCases
-		=> new object[][] {
-			// Register fail, no input provided
-			new object[] {
-				new RegisterRequestBodyDTO {
-				},
-			},
-			// Register fail, no username provided
-			new object[] {
-				new RegisterRequestBodyDTO {
-					Password = "password",
-				},
-			},
-			// Register fail, no password provided
-			new object[] {
-				new RegisterRequestBodyDTO {
-					Username = "username",
-				},
-			},
-		};
-
-	[Theory]
-	[MemberData(nameof(SaveUserValidationCases))]
-	public async Task SaveUser_Validation_Fail(RegisterRequestBodyDTO request)
-	{
-		using var context = CreateContext();
-
-		var repository = new UserRepository(context);
-		var service = new UserService(repository);
-
-		await Assert.ThrowsAsync<ValidationException>(async () => await service.SaveUserAsync(request));
 
 		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
 	}

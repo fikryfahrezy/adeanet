@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Adea.Loan;
+using Adea.Exceptions;
+using FluentValidation;
 
 namespace Adea.Controllers;
 
@@ -14,8 +16,16 @@ public class LoanController : ControllerBase
 	}
 
 	[HttpPost("create")]
-	public async Task<ActionResult<string>> PostLoanApplicationAsync([FromForm] CreatLoanRequestBodyDTO loanRequest)
-	{
-		return await _loanService.CreateLoanAsync(loanRequest);
+	public async Task<ActionResult<CreateLoanResponseBodyDTO>> PostLoanApplicationAsync([FromForm] CreateLoanRequestBodyDTO loanRequest)
+    {
+		var userId = Request.Headers.Authorization.FirstOrDefault();
+		if (userId == null)
+		{
+			throw new UnprocessableEntityException("Authorization required");
+		}
+
+        var validator = new CreatLoanRequestBodyDTOValidator();
+        await validator.ValidateAndThrowAsync(loanRequest);
+        return await _loanService.CreateLoanAsync(userId, loanRequest);
 	}
 }

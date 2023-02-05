@@ -1,35 +1,36 @@
 using Microsoft.Extensions.Options;
 using Adea.Exceptions;
+using Adea.Interface;
 using Adea.Options;
 
 namespace Adea.Common;
 
-public class FileUploader
+public class FileUploader : IFileUploader
 {
 
-	private readonly string _uploadPath;
+    private readonly string _uploadPath;
 
-	public FileUploader(IOptions<AppEnvOptions> config)
-	{
-		try
-		{
-			_uploadPath = config.Value.UploadDestinationPath;
-		}
-		catch
-		{
-			throw new RequiredUploadPathException("Upload destinaion path is null");
-		}
-	}
+    public FileUploader(IOptions<AppEnvOptions> config)
+    {
+        try
+        {
+            _uploadPath = config.Value.UploadDestinationPath;
+        }
+        catch
+        {
+            throw new RequiredUploadPathException("Upload destinaion path is null");
+        }
+    }
 
-	public async Task<string> UploadFileAsync(IFormFile file)
-	{
-		var filePath = Path.Combine(_uploadPath, Path.GetRandomFileName());
-		using (var stream = System.IO.File.Create(filePath))
-		{
-			await file.CopyToAsync(stream);
-		}
+    public async Task<string> UploadFileAsync(IFormFile file)
+    {
+        var filePath = Path.Combine(_uploadPath, Path.GetRandomFileName() + file.FileName);
+        using (var stream = System.IO.File.Create(filePath))
+        {
+            await file.CopyToAsync(stream);
+        }
 
-		return filePath;
-	}
+        return filePath;
+    }
 }
 

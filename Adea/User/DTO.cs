@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Adea.User;
 
-public record RegisterRequestBodyDTO
+public class RegisterRequestBodyDTO
 {
 	[BindProperty(Name = "username")]
 	public string Username { get; set; } = "";
@@ -15,7 +15,7 @@ public record RegisterRequestBodyDTO
 	public bool IsOfficer { get; set; } = false;
 }
 
-public record RegisterResponseBodyDTO
+public class RegisterResponseBodyDTO
 {
 	[JsonPropertyNameAttribute("id")]
 	public string Id { get; set; } = "";
@@ -24,7 +24,7 @@ public record RegisterResponseBodyDTO
 	public bool IsOfficer { get; set; }
 }
 
-public record LoginRequestBodyDTO
+public class LoginRequestBodyDTO
 {
 	[BindProperty(Name = "username")]
 	public string Username { get; set; } = "";
@@ -33,7 +33,7 @@ public record LoginRequestBodyDTO
 	public string Password { get; set; } = "";
 }
 
-public record LoginResponseBodyDTO
+public class LoginResponseBodyDTO
 {
 	[JsonPropertyNameAttribute("id")]
 	public string Id { get; set; } = "";

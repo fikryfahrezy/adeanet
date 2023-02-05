@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace Adea.Loan;
 
-public record CreatLoanRequestBodyDTO
+public class CreateLoanRequestBodyDTO
 {
-	[BindProperty(Name = "full_name")]
+    [BindProperty(Name = "full_name")]
 	public string FullName { get; set; } = "";
 
 	[BindProperty(Name = "birth_date")]
-	public DateTime? BirthDate { get; set; }
+	public string BirthDate { get; set; } = "";
 
 	[BindProperty(Name = "full_address")]
 	public string FullAddress { get; set; } = "";
@@ -23,25 +24,25 @@ public record CreatLoanRequestBodyDTO
 	public bool IsPrivateField { get; set; } = false;
 
 	[BindProperty(Name = "exp_in_year")]
-	public int ExpInYear { get; set; } = 0;
+	public short ExpInYear { get; set; } = 0;
 
 	[BindProperty(Name = "active_field_number")]
-	public int ActiveFieldNumber { get; set; } = 0;
+	public short ActiveFieldNumber { get; set; } = 0;
 
 	[BindProperty(Name = "sow_seeds_per_cycle")]
-	public int SowSeedsPerCycle { get; set; } = 0;
+	public short SowSeedsPerCycle { get; set; } = 0;
 
 	[BindProperty(Name = "needed_fertilizer_per_cycle_in_kg")]
-	public int NeededFertilizerPerCycleInKg { get; set; } = 0;
+	public short NeededFertilizerPerCycleInKg { get; set; } = 0;
 
 	[BindProperty(Name = "estimated_yield_in_kg")]
-	public int EstimatedYieldInKg { get; set; } = 0;
+	public short EstimatedYieldInKg { get; set; } = 0;
 
 	[BindProperty(Name = "estimated_price_of_harvest_per_kg")]
-	public int EstimatedPriceOfHarvestPerKg { get; set; } = 0;
+	public short EstimatedPriceOfHarvestPerKg { get; set; } = 0;
 
 	[BindProperty(Name = "harvest_cycle_in_months")]
-	public int HarvestCycleInMonths { get; set; } = 0;
+	public short HarvestCycleInMonths { get; set; } = 0;
 
 	[BindProperty(Name = "loan_application_in_idr")]
 	public int LoanApplicationInIdr { get; set; } = 0;
@@ -53,5 +54,11 @@ public record CreatLoanRequestBodyDTO
 	public int BusinessOutcomePerMonthInIdr { get; set; } = 0;
 
 	[BindProperty(Name = "id_card")]
-	public IFormFile? IdCard { get; set; }
+	public IFormFile? IdCard { get; set; } = null;
+}
+
+public class CreateLoanResponseBodyDTO
+{
+    [JsonPropertyNameAttribute("id")]
+    public string Id { get; set; } = "";
 }
