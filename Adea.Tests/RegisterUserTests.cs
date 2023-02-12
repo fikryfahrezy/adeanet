@@ -1,44 +1,19 @@
 
-using System.Data.Common;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
-using Adea.Data;
 using Adea.Exceptions;
 using Adea.User;
 
 namespace Adea.Tests;
 
-public class RegisterUserTests : IDisposable
+public class RegisterUserTests : IClassFixture<DatabaseFixture>
 {
-	private DbConnection _connection;
-	private DbContextOptions<LoanLosDbContext> _contextOptions;
+    DatabaseFixture _databaseFixture;
+    public RegisterUserTests(DatabaseFixture databaseFixture)
+    {
+        _databaseFixture = databaseFixture;
+    }
 
-	#region ConstructorAndDispose
-	public RegisterUserTests()
-	{
-		// Create and open a connection. This creates the SQLite in-memory database, which will persist until the connection is closed
-		// at the end of the test (see Dispose below).
-		_connection = new SqliteConnection("Filename=:memory:");
-		_connection.Open();
-
-		// These options will be used by the context instances in this test suite, including the connection opened above.
-		_contextOptions = new DbContextOptionsBuilder<LoanLosDbContext>()
-			.UseSqlite(_connection)
-			.Options;
-
-		// Create the schema and seed some data
-		using var context = new LoanLosDbContext(_contextOptions);
-		context.Database.EnsureDeleted();
-		context.Database.EnsureCreated();
-	}
-
-	LoanLosDbContext CreateContext() => new LoanLosDbContext(_contextOptions);
-
-	public void Dispose() => _connection.Dispose();
-	#endregion
-
-	public static IEnumerable<object[]> SuccessSaveUserCases
+    public static IEnumerable<object[]> SuccessSaveUserCases
 		=> new object[][] {
 			// Register as officer successfully
 			new object[] {
@@ -62,7 +37,7 @@ public class RegisterUserTests : IDisposable
 	[MemberData(nameof(SuccessSaveUserCases))]
 	public async Task SaveUser_ProperData_Success(RegisterRequestBodyDTO request)
 	{
-		using var context = CreateContext();
+		using var context = _databaseFixture.CreateContext();
 
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
@@ -75,18 +50,18 @@ public class RegisterUserTests : IDisposable
 		};
 
 		var firstServiceResponse = await service.SaveUserAsync(user);
-		Assert.NotNull(firstServiceResponse.Id);
+		Assert.NotEmpty(firstServiceResponse.Id);
 
 		var secondServiceResponse = await service.SaveUserAsync(request);
-		Assert.NotNull(secondServiceResponse.Id);
+		Assert.NotEmpty(secondServiceResponse.Id);
 
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
-	}
+        await _databaseFixture.ClearDB(context);
+    }
 
 	[Fact(DisplayName = "Register fail, username exist")]
 	public async Task SaveUser_DuplicateUsername_Fail()
 	{
-		using var context = CreateContext();
+		using var context = _databaseFixture.CreateContext();
 
 		var repository = new UserRepository(context);
 		var service = new UserService(repository);
@@ -99,9 +74,9 @@ public class RegisterUserTests : IDisposable
 		};
 
 		var serviceResponse = await service.SaveUserAsync(user);
-		Assert.NotNull(serviceResponse.Id);
+		Assert.NotEmpty(serviceResponse.Id);
 		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUserAsync(user));
 
-		await context.Database.ExecuteSqlRawAsync("DELETE FROM users");
+		await _databaseFixture.ClearDB(context);
 	}
 }

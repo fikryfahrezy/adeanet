@@ -41,7 +41,7 @@ public class LoanApplicationDAO
     public short ExpInYear { get; set; } = 0;
     public short ActiveFieldNumber { get; set; } = 0;
     public short SowSeedsPerCycle { get; set; } = 0;
-    public short NeededFertilizierPerCycleInKg { get; set; } = 0;
+    public short NeededFertilizerPerCycleInKg { get; set; } = 0;
     public short EstimatedYieldInKg { get; set; } = 0;
     public short EstimatedPriceOfHarvestPerKg { get; set; } = 0;
     public short HarvestCycleInMonths { get; set; } = 0;

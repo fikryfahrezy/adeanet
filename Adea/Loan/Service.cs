@@ -51,7 +51,7 @@ public class LoanService
         ExpInYear = loanRequest.ExpInYear,
         ActiveFieldNumber = loanRequest.ActiveFieldNumber,
         SowSeedsPerCycle = loanRequest.SowSeedsPerCycle,
-        NeededFertilizierPerCycleInKg = loanRequest.NeededFertilizerPerCycleInKg,
+        NeededFertilizerPerCycleInKg = loanRequest.NeededFertilizerPerCycleInKg,
         EstimatedYieldInKg = loanRequest.EstimatedYieldInKg,
         EstimatedPriceOfHarvestPerKg = loanRequest.EstimatedPriceOfHarvestPerKg,
         HarvestCycleInMonths = loanRequest.HarvestCycleInMonths,

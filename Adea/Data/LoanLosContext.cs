@@ -85,7 +85,7 @@ public partial class LoanLosDbContext : DbContext
 				.HasColumnName("loan_application_in_idr")
 				.HasDefaultValueSql("0");
 
-			entity.Property(e => e.NeededFertilizierPerCycleInKg)
+			entity.Property(e => e.NeededFertilizerPerCycleInKg)
 				.HasColumnName("needed_fertilizier_per_cycle_in_kg")
 				.HasDefaultValueSql("0");
 
