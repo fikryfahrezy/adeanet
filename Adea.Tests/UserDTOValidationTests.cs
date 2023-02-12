@@ -7,7 +7,7 @@ public class UserDTOValidationTests
 {
     public static IEnumerable<object[]> VerifyUserValidationCases
     => new object[][] {
-			// Login fail, no input provided # test commit author
+			// Login fail, no input provided
 			new object[] {
                 new LoginRequestBodyDTO {
                 },
