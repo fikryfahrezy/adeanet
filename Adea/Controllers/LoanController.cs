@@ -8,24 +8,38 @@ namespace Adea.Controllers;
 [Route("[controller]")]
 public class LoanController : ControllerBase
 {
-	private readonly LoanService _loanService;
+    private readonly LoanService _loanService;
 
-	public LoanController(LoanService loanService)
-	{
-		_loanService = loanService;
-	}
-
-	[HttpPost("create")]
-	public async Task<ActionResult<CreateLoanResponseBodyDTO>> PostLoanApplicationAsync([FromForm] CreateLoanRequestBodyDTO loanRequest)
+    public LoanController(LoanService loanService)
     {
-		var userId = Request.Headers.Authorization.FirstOrDefault();
-		if (userId == null)
-		{
-			throw new UnprocessableEntityException("Authorization required");
-		}
+        _loanService = loanService;
+    }
 
+    [HttpPost("create")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> PostLoanApplicationAsync([FromForm] CreateLoanRequestBodyDTO loanRequest)
+    {
+        var userId = GetUserId();
         var validator = new CreatLoanRequestBodyDTOValidator();
         await validator.ValidateAndThrowAsync(loanRequest);
         return await _loanService.CreateLoanAsync(userId, loanRequest);
-	}
+    }
+
+    [HttpGet("getall")]
+    public async Task<ActionResult<IEnumerable<GetUserLoanResponseBodyDTO>>> GetUserLoanApplicationsAsync()
+    {
+        var userId = GetUserId();
+        return await _loanService.GetUserLoansAsync(userId);
+    }
+
+    private string GetUserId()
+    {
+        var userId = Request.Headers.Authorization.FirstOrDefault();
+        if (userId == null)
+        {
+            throw new UnprocessableEntityException("Authorization required");
+        }
+
+        return userId;
+    }
+
 }

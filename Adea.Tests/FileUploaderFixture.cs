@@ -24,7 +24,7 @@ public class FileUploaderFixture : IFileUploader
 
     public async Task<string> UploadFileAsync(IFormFile file)
     {
-        return Path.GetRandomFileName() + file.FileName;
+        return await Task.Run(() => Path.GetRandomFileName() + file.FileName);
     }
 }
 

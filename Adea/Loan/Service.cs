@@ -2,6 +2,8 @@ using Adea.Interface;
 using Adea.Models;
 using Adea.User;
 using Adea.Exceptions;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using System.Linq;
 
 namespace Adea.Loan;
 
@@ -45,7 +47,7 @@ public class LoanService
         };
     }
 
-    public LoanApplicationDAO LoanApplicationDTOtoDAO(string userId, string idCardUrl, CreateLoanRequestBodyDTO loanRequest) => new LoanApplicationDAO
+    private LoanApplicationDAO LoanApplicationDTOtoDAO(string userId, string idCardUrl, CreateLoanRequestBodyDTO loanRequest) => new LoanApplicationDAO
     {
         IsPrivateField = loanRequest.IsPrivateField,
         ExpInYear = loanRequest.ExpInYear,
@@ -66,4 +68,31 @@ public class LoanService
         IdCardUrl = idCardUrl,
         OtherBusiness = loanRequest.OtherBusiness,
     };
+
+    public async Task<List<GetUserLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
+    {
+        await CheckUserExistenceAndThrowAsync(userId);
+
+        var userLoans = await _loanRepository.GetUserLoansAsync(userId);
+        return userLoans
+            .Select(userLoan => new GetUserLoanResponseBodyDTO
+            {
+                FullName = userLoan.FullName,
+                LoanCreatedDate = userLoan.CreatedDate.ToString("2006-01-02"),
+                LoanId = userLoan.Id,
+                LoanStatus = userLoan.Status,
+                UserId = userLoan.UserId,
+            })
+            .ToList();
+    }
+
+    private async Task CheckUserExistenceAndThrowAsync(string userId)
+    {
+        var user = await _userRepository.GetUserByUserIdAsync(userId);
+
+        if (user == null)
+        {
+            throw new NotFoundException($"User with {userId} not found");
+        }
+    }
 }

@@ -21,37 +21,13 @@ public class UserRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task CheckUsernameExistAndThrowAsync(string username)
+    public async Task<UserDAO?> GetUserByUsernameAsync(string username)
     {
-        var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Username == username);
-
-        if (user != null)
-        {
-            throw new UnprocessableEntityException($"Username {username} already exist");
-        }
+        return await _dbContext.Users.SingleOrDefaultAsync(u => u.Username == username);
     }
 
-    public async Task<UserDAO> GetUserByUsernameAsync(string username)
+    public async Task<UserDAO?> GetUserByUserIdAsync(string userId)
     {
-        var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Username == username);
-
-        if (user == null)
-        {
-            throw new NotFoundException($"Username {username} not exist");
-        }
-
-        return user;
-    }
-
-    public async Task<UserDAO> GetUserByIdAsync(string userId)
-    {
-        var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
-
-        if (user == null)
-        {
-            throw new NotFoundException($"User with {userId} not exist");
-        }
-
-        return user;
+        return await _dbContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
     }
 }

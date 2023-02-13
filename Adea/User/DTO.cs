@@ -17,10 +17,10 @@ public class RegisterRequestBodyDTO
 
 public class RegisterResponseBodyDTO
 {
-	[JsonPropertyNameAttribute("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; } = "";
 
-	[JsonPropertyNameAttribute("is_officer")]
+	[JsonPropertyName("is_officer")]
 	public bool IsOfficer { get; set; }
 }
 
@@ -35,9 +35,9 @@ public class LoginRequestBodyDTO
 
 public class LoginResponseBodyDTO
 {
-	[JsonPropertyNameAttribute("id")]
+	[JsonPropertyName("id")]
 	public string Id { get; set; } = "";
 
-	[JsonPropertyNameAttribute("is_officer")]
+	[JsonPropertyName("is_officer")]
 	public bool IsOfficer { get; set; }
 }

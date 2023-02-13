@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Adea.Tests;
 
-public class LoanDTOValidationTests
+public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
 {
     readonly static IFormFile? _fileMock = null;
 

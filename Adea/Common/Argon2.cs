@@ -128,18 +128,18 @@ public class Argon2
         return $"$argon2{Argon2TypeToString(type)}$m={hashConfig.MemorySize},t={hashConfig.Iterations},p={hashConfig.DegreeOfParallelism}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hashedBytes)}";
     }
 
-    public static void VerifyAndThrow(string word, string hashedWord)
+    public static bool Verify(string word, string hashedWord)
     {
         var hashedWords = hashedWord.Split("$");
         if (hashedWords.Length != 5)
         {
-            throw new UnprocessableEntityException("Not valid argon hashed string");
+            return false;
         }
 
         var type = hashedWords[1].Split("argon2");
         if (type.Length != 2)
         {
-            throw new UnprocessableEntityException("Not valid argon type");
+            return false;
         }
 
         var argon2Param = new Dictionary<string, int>();
@@ -203,10 +203,7 @@ public class Argon2
             }),
         };
 
-        if (!decodedHash.SequenceEqual(newHashedBytes))
-        {
-            throw new UnauthorizedException("Password not match");
-        }
+        return decodedHash.SequenceEqual(newHashedBytes);
     }
 
     private static string Argon2TypeToString(Argon2Type type) => type switch

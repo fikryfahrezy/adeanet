@@ -7,7 +7,7 @@ namespace Adea.Tests;
 
 public class RegisterUserTests : IClassFixture<DatabaseFixture>
 {
-    DatabaseFixture _databaseFixture;
+    readonly DatabaseFixture _databaseFixture;
     public RegisterUserTests(DatabaseFixture databaseFixture)
     {
         _databaseFixture = databaseFixture;

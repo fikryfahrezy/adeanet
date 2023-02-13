@@ -7,8 +7,8 @@ namespace Adea.Tests;
 
 public class CreateLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<FileUploaderFixture>
 {
-    DatabaseFixture _databaseFixture;
-    FileUploaderFixture _fileUploaderFixture;
+    readonly DatabaseFixture _databaseFixture;
+    readonly FileUploaderFixture _fileUploaderFixture;
 
     public CreateLoanTests(DatabaseFixture databaseFixture, FileUploaderFixture fileUploaderFixture)
     {
