@@ -42,4 +42,10 @@ public class LoanController : ControllerBase
         return userId;
     }
 
+    [HttpGet("get/{loanId}")]
+    public async Task<ActionResult<GetUserLoanDetailResponseBodyDTO>> GetUserLoanApplicationAsync(string loanId)
+    {
+        var userId = GetUserId();
+        return await _loanService.GetUserLoanDetailAsync(loanId, userId);
+    }
 }

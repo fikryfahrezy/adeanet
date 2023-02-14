@@ -80,3 +80,66 @@ public class GetUserLoanResponseBodyDTO
     [JsonPropertyName("loan_created_date")]
     public string LoanCreatedDate { get; set; } = "";
 }
+
+public class GetUserLoanDetailResponseBodyDTO
+{
+    [JsonPropertyName("is_private_field")]
+    public bool IsPrivateField { get; set; } = false;
+
+    [JsonPropertyName("exp_in_year")]
+    public long ExpInYear { get; set; } = 0;
+
+    [JsonPropertyName("active_field_number")]
+    public long ActiveFieldNumber { get; set; } = 0;
+
+    [JsonPropertyName("sow_seeds_per_cycle")]
+    public long SowSeedsPerCycle { get; set; } = 0;
+
+    [JsonPropertyName("needed_fertilizer_per_cycle_in_kg")]
+    public long NeededFertilizerPerCycleInKg { get; set; } = 0;
+
+    [JsonPropertyName("estimated_yield_in_kg")]
+    public long EstimatedYieldInKg { get; set; } = 0;
+
+    [JsonPropertyName("estimated_price_of_harvest_per_kg")]
+    public long EstimatedPriceOfHarvestPerKg { get; set; } = 0;
+
+    [JsonPropertyName("harvest_cycle_in_months")]
+    public long HarvestCycleInMonths { get; set; } = 0;
+
+    [JsonPropertyName("loan_application_in_idr")]
+    public long LoanApplicationInIdr { get; set; } = 0;
+
+    [JsonPropertyName("business_income_per_month_in_idr")]
+    public long BusinessIncomePerMonthInIdr { get; set; } = 0;
+
+    [JsonPropertyName("business_outcome_per_month_in_idr")]
+    public long BusinessOutcomePerMonthInIdr { get; set; } = 0;
+
+    [JsonPropertyName("loan_id")]
+    public string LoanId { get; set; } = "";
+
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; } = "";
+
+    [JsonPropertyName("full_name")]
+    public string FullName { get; set; } = "";
+
+    [JsonPropertyName("birth_date")]
+    public string BirthDate { get; set; } = "";
+
+    [JsonPropertyName("full_address")]
+    public string FullAddress { get; set; } = "";
+
+    [JsonPropertyName("phone")]
+    public string Phone { get; set; } = "";
+
+    [JsonPropertyName("other_business")]
+    public string OtherBusiness { get; set; } = "";
+
+    [JsonPropertyName("id_card_url")]
+    public string IdCardUrl { get; set; } = "";
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = "";
+}

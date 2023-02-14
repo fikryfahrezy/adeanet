@@ -2,8 +2,7 @@ using Adea.Interface;
 using Adea.Models;
 using Adea.User;
 using Adea.Exceptions;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using System.Linq;
+using System.Numerics;
 
 namespace Adea.Loan;
 
@@ -47,7 +46,7 @@ public class LoanService
         };
     }
 
-    private LoanApplicationDAO LoanApplicationDTOtoDAO(string userId, string idCardUrl, CreateLoanRequestBodyDTO loanRequest) => new LoanApplicationDAO
+    private static LoanApplicationDAO LoanApplicationDTOtoDAO(string userId, string idCardUrl, CreateLoanRequestBodyDTO loanRequest) => new()
     {
         IsPrivateField = loanRequest.IsPrivateField,
         ExpInYear = loanRequest.ExpInYear,
@@ -66,7 +65,7 @@ public class LoanService
         FullAddress = loanRequest.FullAddress,
         Phone = loanRequest.Phone,
         IdCardUrl = idCardUrl,
-        OtherBusiness = loanRequest.OtherBusiness,
+        OtherBusiness = loanRequest.OtherBusiness
     };
 
     public async Task<List<GetUserLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
@@ -95,4 +94,47 @@ public class LoanService
             throw new NotFoundException($"User with {userId} not found");
         }
     }
+
+    public async Task<GetUserLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
+    {
+        await CheckUserExistenceAndThrowAsync(userId);
+        var userLoan = await GetUserLoanAsync(loanId, userId);
+
+        return LoanApplicationDAOtoDTO(userLoan);
+    }
+
+    private async Task<LoanApplicationDAO> GetUserLoanAsync(string loanId, string userId)
+    {
+        var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
+        if (userLoan == null)
+        {
+            throw new NotFoundException($"User id {userId} with loan id {loanId} not found");
+        }
+
+        return userLoan;
+    }
+
+    private static GetUserLoanDetailResponseBodyDTO LoanApplicationDAOtoDTO(LoanApplicationDAO loanApplication) => new()
+    {
+        IsPrivateField = loanApplication.IsPrivateField,
+        ExpInYear = loanApplication.ExpInYear,
+        ActiveFieldNumber = loanApplication.ActiveFieldNumber,
+        SowSeedsPerCycle = loanApplication.SowSeedsPerCycle,
+        NeededFertilizerPerCycleInKg = loanApplication.NeededFertilizerPerCycleInKg,
+        EstimatedYieldInKg = loanApplication.EstimatedPriceOfHarvestPerKg,
+        EstimatedPriceOfHarvestPerKg = loanApplication.EstimatedPriceOfHarvestPerKg,
+        HarvestCycleInMonths = loanApplication.HarvestCycleInMonths,
+        LoanApplicationInIdr = loanApplication.LoanApplicationInIdr,
+        BusinessIncomePerMonthInIdr = loanApplication.BusinessIncomePerMonthInIdr,
+        BusinessOutcomePerMonthInIdr = loanApplication.BusinessOutcomePerMonthInIdr,
+        LoanId = loanApplication.Id,
+        UserId = loanApplication.UserId,
+        FullName = loanApplication.FullName,
+        BirthDate = loanApplication.BirthDate,
+        FullAddress = loanApplication.FullAddress,
+        Phone = loanApplication.Phone,
+        OtherBusiness = loanApplication.OtherBusiness,
+        IdCardUrl = loanApplication.IdCardUrl,
+        Status = loanApplication.Status,
+    };
 }

@@ -22,4 +22,9 @@ public class LoanRepository
         _dbContext.LoanApplications.Add(loanApplication);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<LoanApplicationDAO?> GetUserLoanAsync(string loanId, string userId)
+    {
+        return await _dbContext.LoanApplications.Where(l => l.Id == loanId && l.UserId == userId).FirstOrDefaultAsync();
+    }
 }
