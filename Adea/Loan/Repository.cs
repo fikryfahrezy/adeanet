@@ -27,4 +27,9 @@ public class LoanRepository
     {
         return await _dbContext.LoanApplications.Where(l => l.Id == loanId && l.UserId == userId).FirstOrDefaultAsync();
     }
+
+    public async Task<IEnumerable<LoanApplicationDAO>> GetLoans()
+    {
+        return await _dbContext.LoanApplications.ToListAsync();
+    }
 }

@@ -68,22 +68,24 @@ public class LoanService
         OtherBusiness = loanRequest.OtherBusiness
     };
 
-    public async Task<List<GetUserLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
+    public async Task<List<GetLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
     {
         await CheckUserExistenceAndThrowAsync(userId);
 
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
         return userLoans
-            .Select(userLoan => new GetUserLoanResponseBodyDTO
-            {
-                FullName = userLoan.FullName,
-                LoanCreatedDate = userLoan.CreatedDate.ToString("2006-01-02"),
-                LoanId = userLoan.Id,
-                LoanStatus = userLoan.Status,
-                UserId = userLoan.UserId,
-            })
+            .Select(LoanApplicationDAOtoLoanDTO)
             .ToList();
     }
+
+    private static GetLoanResponseBodyDTO LoanApplicationDAOtoLoanDTO(LoanApplicationDAO loan) => new()
+    {
+        FullName = loan.FullName,
+        LoanCreatedDate = loan.CreatedDate.ToString("2006-01-02"),
+        LoanId = loan.Id,
+        LoanStatus = loan.Status,
+        UserId = loan.UserId,
+    };
 
     private async Task CheckUserExistenceAndThrowAsync(string userId)
     {
@@ -95,12 +97,12 @@ public class LoanService
         }
     }
 
-    public async Task<GetUserLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
+    public async Task<GetLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
     {
         await CheckUserExistenceAndThrowAsync(userId);
         var userLoan = await GetUserLoanAsync(loanId, userId);
 
-        return LoanApplicationDAOtoDTO(userLoan);
+        return LoanApplicationDAOtoLoanDetailDTO(userLoan);
     }
 
     private async Task<LoanApplicationDAO> GetUserLoanAsync(string loanId, string userId)
@@ -114,7 +116,7 @@ public class LoanService
         return userLoan;
     }
 
-    private static GetUserLoanDetailResponseBodyDTO LoanApplicationDAOtoDTO(LoanApplicationDAO loanApplication) => new()
+    private static GetLoanDetailResponseBodyDTO LoanApplicationDAOtoLoanDetailDTO(LoanApplicationDAO loanApplication) => new()
     {
         IsPrivateField = loanApplication.IsPrivateField,
         ExpInYear = loanApplication.ExpInYear,
@@ -137,4 +139,10 @@ public class LoanService
         IdCardUrl = loanApplication.IdCardUrl,
         Status = loanApplication.Status,
     };
+
+    public async Task<List<GetLoanResponseBodyDTO>> GetLoansAsync()
+    {
+        var loans = await _loanRepository.GetLoans();
+        return loans.Select(LoanApplicationDAOtoLoanDTO).ToList();
+    }
 }

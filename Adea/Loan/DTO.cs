@@ -63,7 +63,7 @@ public class CreateLoanResponseBodyDTO
     public string Id { get; set; } = "";
 }
 
-public class GetUserLoanResponseBodyDTO
+public class GetLoanResponseBodyDTO
 {
     [JsonPropertyName("loan_id")]
     public string LoanId { get; set; } = "";
@@ -81,7 +81,7 @@ public class GetUserLoanResponseBodyDTO
     public string LoanCreatedDate { get; set; } = "";
 }
 
-public class GetUserLoanDetailResponseBodyDTO
+public class GetLoanDetailResponseBodyDTO
 {
     [JsonPropertyName("is_private_field")]
     public bool IsPrivateField { get; set; } = false;
