@@ -91,7 +91,7 @@ public class LoanService
     {
         var user = await _userRepository.GetUserByUserIdAsync(userId);
 
-        if (user == null)
+        if (user is null)
         {
             throw new NotFoundException($"User with {userId} not found");
         }
@@ -100,20 +100,13 @@ public class LoanService
     public async Task<GetLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
     {
         await CheckUserExistenceAndThrowAsync(userId);
-        var userLoan = await GetUserLoanAsync(loanId, userId);
-
-        return LoanApplicationDAOtoLoanDetailDTO(userLoan);
-    }
-
-    private async Task<LoanApplicationDAO> GetUserLoanAsync(string loanId, string userId)
-    {
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
-        if (userLoan == null)
+        if (userLoan is null)
         {
             throw new NotFoundException($"User id {userId} with loan id {loanId} not found");
         }
 
-        return userLoan;
+        return LoanApplicationDAOtoLoanDetailDTO(userLoan);
     }
 
     private static GetLoanDetailResponseBodyDTO LoanApplicationDAOtoLoanDetailDTO(LoanApplicationDAO loanApplication) => new()
@@ -142,7 +135,18 @@ public class LoanService
 
     public async Task<List<GetLoanResponseBodyDTO>> GetLoansAsync()
     {
-        var loans = await _loanRepository.GetLoans();
+        var loans = await _loanRepository.GetLoansAsync();
         return loans.Select(LoanApplicationDAOtoLoanDTO).ToList();
+    }
+
+    public async Task<GetLoanDetailResponseBodyDTO> GetLoanDetailAsync(string loanId)
+    {
+        var loan = await _loanRepository.GetLoanAsync(loanId);
+
+        if (loan is null)
+        {
+            throw new NotFoundException($"Loan with {loanId} not found");
+        }
+        return LoanApplicationDAOtoLoanDetailDTO(loan);
     }
 }

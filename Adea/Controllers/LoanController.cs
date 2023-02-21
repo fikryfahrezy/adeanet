@@ -49,9 +49,15 @@ public class LoanController : ControllerBase
         return await _loanService.GetUserLoanDetailAsync(loanId, userId);
     }
 
-    [HttpGet("get/getall/admin")]
+    [HttpGet("getall/admin")]
     public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetLoanAsync()
     {
         return await _loanService.GetLoansAsync();
+    }
+
+    [HttpGet("get/admin/{loanId}")]
+    public async Task<ActionResult<GetLoanDetailResponseBodyDTO>> GetLoanAsync(string loanId)
+    {
+        return await _loanService.GetLoanDetailAsync(loanId);
     }
 }
