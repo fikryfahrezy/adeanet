@@ -93,7 +93,7 @@ public class LoanDetail
     public long ActiveFieldNumber;
     public long SowSeedsPerCycle;
     public long NeededFertilizerPerCycleInKg;
-    public long EstimatedYieldInKG;
+    public long EstimatedYieldInKg;
     public long EstimatedPriceOfHarvestPerKg;
     public long HarvestCycleInMonths;
     public long LoanApplicationInIdr;
@@ -115,7 +115,7 @@ public class LoanDetail
         long activeFieldNumber,
         long sowSeedsPerCycle,
         long neededFertilizerPerCycleInKg,
-        long estimatedYieldInKG,
+        long estimatedYieldInKg,
         long estimatedPriceOfHarvestPerKg,
         long harvestCycleInMonths,
         long loanApplicationInIdr,
@@ -137,7 +137,7 @@ public class LoanDetail
         ActiveFieldNumber = activeFieldNumber;
         SowSeedsPerCycle = sowSeedsPerCycle;
         NeededFertilizerPerCycleInKg = neededFertilizerPerCycleInKg;
-        EstimatedYieldInKG = estimatedYieldInKG;
+        EstimatedYieldInKg = estimatedYieldInKg;
         EstimatedPriceOfHarvestPerKg = estimatedPriceOfHarvestPerKg;
         HarvestCycleInMonths = harvestCycleInMonths;
         LoanApplicationInIdr = loanApplicationInIdr;

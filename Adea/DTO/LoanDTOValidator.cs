@@ -3,9 +3,9 @@ using System.Globalization;
 
 namespace Adea.DTO;
 
-public class CreatLoanRequestBodyDTOValidator : AbstractValidator<CreateLoanRequestBodyDTO>
+public class CreateLoanRequestBodyDTOValidator : AbstractValidator<CreateLoanRequestBodyDTO>
 {
-    public CreatLoanRequestBodyDTOValidator()
+    public CreateLoanRequestBodyDTOValidator()
     {
         RuleFor(v => v.FullName).NotEmpty();
         RuleFor(v => v.BirthDate)

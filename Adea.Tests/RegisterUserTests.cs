@@ -27,7 +27,7 @@ public class RegisterUserTests : IClassFixture<DatabaseFixture>
 
     [Theory]
     [MemberData(nameof(SuccessSaveUserCases))]
-    public async Task SaveUser_ProperData_Success(RegisterUser request)
+    public async Task Register_User_With_Proper_Data_Success_Test(RegisterUser request)
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -46,7 +46,7 @@ public class RegisterUserTests : IClassFixture<DatabaseFixture>
     }
 
     [Fact(DisplayName = "Register fail, username exist")]
-    public async Task SaveUser_DuplicateUsername_Fail()
+    public async Task Register_User_Duplicate_Username_Fail_Test()
     {
         using var context = _databaseFixture.CreateContext();
 

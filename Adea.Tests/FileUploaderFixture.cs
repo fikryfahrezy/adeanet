@@ -5,13 +5,14 @@ namespace Adea.Tests;
 public class FileUploaderFixture : IFileUploader
 {
     readonly public IFormFile? fileMock = null;
+    readonly public string fileName = "test.pdf";
 
     public FileUploaderFixture()
     {
         //Setup mock file using a memory stream
         // Ref: https://stackoverflow.com/questions/36858542/how-to-mock-an-iformfile-for-a-unit-integration-test-in-asp-net-core
         var content = "Hello World from a Fake File";
-        var fileName = "test.pdf";
+        var fileName = this.fileName;
         var stream = new MemoryStream();
         var writer = new StreamWriter(stream);
         writer.Write(content);
@@ -24,7 +25,7 @@ public class FileUploaderFixture : IFileUploader
 
     public async Task<string> UploadFileAsync(IFormFile file)
     {
-        return await Task.Run(() => Path.GetRandomFileName() + file.FileName);
+        return await Task.Run(() => file.FileName);
     }
 }
 

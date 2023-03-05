@@ -16,7 +16,7 @@ public class GetLoansTests : IClassFixture<DatabaseFixture>, IClassFixture<FileU
     }
 
     [Fact]
-    public async void Get_Loans_Tests()
+    public async void Get_Loans_Success_Test()
     {
         using var context = _fixture.CreateContext();
 
@@ -47,10 +47,20 @@ public class GetLoansTests : IClassFixture<DatabaseFixture>, IClassFixture<FileU
             idCard: _fileUploaderFixture.fileMock
          );
 
-        await loanRepository.InsertLoanAsync(newUserID, "https://random", loanApplication);
+        var newLoanId = await loanRepository.InsertLoanAsync(newUserID, _fileUploaderFixture.fileName, loanApplication);
 
         var loans = await service.GetLoansAsync();
         Assert.NotEmpty(loans);
+
+        foreach (var loan in loans)
+        {
+            Assert.NotNull(loan);
+            Assert.Equal(loanApplication.FullName, loan.FullName);
+            Assert.Equal(newLoanId, loan.LoanId);
+            Assert.Equal(newUserID, loan.UserId);
+            Assert.Equal(LoanStatus.Wait.ToString(), loan.LoanStatus);
+            Assert.NotEmpty(loan.LoanCreatedDate);
+        }
 
         await _fixture.ClearDB(context);
     }

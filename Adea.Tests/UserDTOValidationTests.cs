@@ -28,7 +28,7 @@ public class UserDTOValidationTests
 
     [Theory]
     [MemberData(nameof(VerifyUserValidationCases))]
-    public async Task LoginRequestBodyDTO_Validation_Fail(LoginRequestBodyDTO request)
+    public async Task Login_Request_Body_DTO_Validation_Fail_Test(LoginRequestBodyDTO request)
     {
         var validator = new LoginRequestBodyDTODTOValidator();
         await Assert.ThrowsAsync<ValidationException>(async () => await validator.ValidateAndThrowAsync(request));
@@ -58,7 +58,7 @@ public class UserDTOValidationTests
 
     [Theory]
     [MemberData(nameof(SaveUserValidationCases))]
-    public async Task RegisterRequestBodyDTO_Validation_Fail(RegisterRequestBodyDTO request)
+    public async Task Register_Request_Body_DTO_Validation_Fail_Test(RegisterRequestBodyDTO request)
     {
         var validator = new RegisterRequestBodyDTOValidator();
         await Assert.ThrowsAsync<ValidationException>(async () => await validator.ValidateAndThrowAsync(request));

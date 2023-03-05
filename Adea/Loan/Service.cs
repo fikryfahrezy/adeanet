@@ -19,26 +19,6 @@ public class LoanService
         _fileUploader = fileUploader;
     }
 
-    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, LoanApplication loanApplication)
-    {
-        var userLoans = await _loanRepository.GetUserLoansAsync(userId);
-        foreach (var userLoan in userLoans)
-        {
-            if (userLoan.LoanStatus == LoanStatus.Wait.ToString() || userLoan.LoanStatus == LoanStatus.Process.ToString())
-            {
-                throw new UnprocessableEntityException("Already have processed loan");
-            }
-        }
-
-        var idCardFilePath = await _fileUploader.UploadFileAsync(loanApplication.IdCard);
-        var newLoanApplicationID = await _loanRepository.InsertLoanAsync(userId, idCardFilePath, loanApplication);
-
-        return new CreateLoanResponseBodyDTO
-        {
-            Id = newLoanApplicationID,
-        };
-    }
-
     public async Task<List<GetLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
     {
         await CheckUserExistenceAndThrowAsync(userId);
@@ -51,12 +31,7 @@ public class LoanService
     {
         await CheckUserExistenceAndThrowAsync(userId);
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
-        if (userLoan is null)
-        {
-            throw new NotFoundException($"User id {userId} with loan id {loanId} not found");
-        }
-
-        return LoanModeltoLoanDetailDTO(userLoan);
+        return LoanDetailModeltoLoanDetailDTO(userLoan);
     }
 
     public async Task<List<GetLoanResponseBodyDTO>> GetLoansAsync()
@@ -68,12 +43,55 @@ public class LoanService
     public async Task<GetLoanDetailResponseBodyDTO> GetLoanDetailAsync(string loanId)
     {
         var loan = await _loanRepository.GetLoanAsync(loanId);
+        return LoanDetailModeltoLoanDetailDTO(loan);
+    }
 
-        if (loan is null)
+    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, LoanApplication loanApplication)
+    {
+        var userLoans = await _loanRepository.GetUserLoansAsync(userId);
+        foreach (var userLoan in userLoans)
         {
-            throw new NotFoundException($"Loan with {loanId} not found");
+            if (userLoan.LoanStatus == LoanStatus.Wait.ToString() || userLoan.LoanStatus == LoanStatus.Process.ToString())
+            {
+                throw new UnprocessableEntityException("Already have processed loan");
+            }
         }
-        return LoanModeltoLoanDetailDTO(loan);
+
+        var idCardFilePath = await _fileUploader.UploadFileAsync(loanApplication.IdCard);
+        var newLoanApplicationID = await _loanRepository.InsertLoanAsync(
+            userId: userId,
+            idCardUrl: idCardFilePath,
+            loanApplication: loanApplication
+        );
+
+        return new CreateLoanResponseBodyDTO
+        {
+            Id = newLoanApplicationID,
+        };
+    }
+
+    public async Task<CreateLoanResponseBodyDTO> UpdateLoanAsync(string userId, string loanId, LoanApplication loanApplication)
+    {
+        await CheckUserExistenceAndThrowAsync(userId);
+
+        var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
+        if (userLoan.Status != LoanStatus.Wait.ToString())
+        {
+            throw new UnprocessableEntityException("Already have processed loan");
+        }
+
+        var idCardFilePath = await _fileUploader.UploadFileAsync(loanApplication.IdCard);
+        var newLoanApplicationID = await _loanRepository.UpdateLoanAsync(
+            loanId: loanId,
+            userId: userId,
+            idCardUrl: idCardFilePath,
+            loanApplication: loanApplication
+        );
+
+        return new CreateLoanResponseBodyDTO
+        {
+            Id = newLoanApplicationID,
+        };
     }
 
     private async Task CheckUserExistenceAndThrowAsync(string userId)
@@ -95,27 +113,27 @@ public class LoanService
         UserId = loan.UserId,
     };
 
-    private static GetLoanDetailResponseBodyDTO LoanModeltoLoanDetailDTO(LoanApplicationDAO loanApplication) => new()
+    private static GetLoanDetailResponseBodyDTO LoanDetailModeltoLoanDetailDTO(LoanDetail loanDetail) => new()
     {
-        IsPrivateField = loanApplication.IsPrivateField,
-        ExpInYear = loanApplication.ExpInYear,
-        ActiveFieldNumber = loanApplication.ActiveFieldNumber,
-        SowSeedsPerCycle = loanApplication.SowSeedsPerCycle,
-        NeededFertilizerPerCycleInKg = loanApplication.NeededFertilizerPerCycleInKg,
-        EstimatedYieldInKg = loanApplication.EstimatedPriceOfHarvestPerKg,
-        EstimatedPriceOfHarvestPerKg = loanApplication.EstimatedPriceOfHarvestPerKg,
-        HarvestCycleInMonths = loanApplication.HarvestCycleInMonths,
-        LoanApplicationInIdr = loanApplication.LoanApplicationInIdr,
-        BusinessIncomePerMonthInIdr = loanApplication.BusinessIncomePerMonthInIdr,
-        BusinessOutcomePerMonthInIdr = loanApplication.BusinessOutcomePerMonthInIdr,
-        LoanId = loanApplication.Id,
-        UserId = loanApplication.UserId,
-        FullName = loanApplication.FullName,
-        BirthDate = loanApplication.BirthDate,
-        FullAddress = loanApplication.FullAddress,
-        Phone = loanApplication.Phone,
-        OtherBusiness = loanApplication.OtherBusiness,
-        IdCardUrl = loanApplication.IdCardUrl,
-        Status = loanApplication.Status,
+        IsPrivateField = loanDetail.IsPrivateField,
+        ExpInYear = loanDetail.ExpInYear,
+        ActiveFieldNumber = loanDetail.ActiveFieldNumber,
+        SowSeedsPerCycle = loanDetail.SowSeedsPerCycle,
+        NeededFertilizerPerCycleInKg = loanDetail.NeededFertilizerPerCycleInKg,
+        EstimatedYieldInKg = loanDetail.EstimatedYieldInKg,
+        EstimatedPriceOfHarvestPerKg = loanDetail.EstimatedPriceOfHarvestPerKg,
+        HarvestCycleInMonths = loanDetail.HarvestCycleInMonths,
+        LoanApplicationInIdr = loanDetail.LoanApplicationInIdr,
+        BusinessIncomePerMonthInIdr = loanDetail.BusinessIncomePerMonthInIdr,
+        BusinessOutcomePerMonthInIdr = loanDetail.BusinessOutcomePerMonthInIdr,
+        LoanId = loanDetail.LoanId,
+        UserId = loanDetail.UserId,
+        FullName = loanDetail.FullName,
+        BirthDate = loanDetail.BirthDate,
+        FullAddress = loanDetail.FullAddress,
+        Phone = loanDetail.Phone,
+        OtherBusiness = loanDetail.OtherBusiness,
+        IdCardUrl = loanDetail.IdCardUrl,
+        Status = loanDetail.Status,
     };
 }

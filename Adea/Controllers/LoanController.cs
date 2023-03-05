@@ -16,18 +16,6 @@ public class LoanController : ControllerBase
         _loanService = loanService;
     }
 
-    [HttpPost("create")]
-    public async Task<ActionResult<CreateLoanResponseBodyDTO>> PostLoanApplicationAsync([FromForm] CreateLoanRequestBodyDTO loanRequest)
-    {
-        var userId = GetUserId();
-        var validator = new CreatLoanRequestBodyDTOValidator();
-        await validator.ValidateAndThrowAsync(loanRequest);
-
-        var loanApplication = CreateLoanRequestToApplication(loanRequest);
-
-        return await _loanService.CreateLoanAsync(userId, loanApplication);
-    }
-
     [HttpGet("getall")]
     public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetUserLoanApplicationsAsync()
     {
@@ -53,6 +41,32 @@ public class LoanController : ControllerBase
         return await _loanService.GetUserLoanDetailAsync(loanId, userId);
     }
 
+    [HttpPost("create")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> PostLoanApplicationAsync([FromForm] CreateLoanRequestBodyDTO loanRequest)
+    {
+        var userId = GetUserId();
+
+        var validator = new CreateLoanRequestBodyDTOValidator();
+        await validator.ValidateAndThrowAsync(loanRequest);
+
+        var loanApplication = CreateLoanDTOToModel(loanRequest);
+
+        return await _loanService.CreateLoanAsync(userId, loanApplication);
+    }
+
+    [HttpPut("update/{loanId}")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> UpdateLoanApplicationAsync(string loanId, [FromForm] CreateLoanRequestBodyDTO loanRequest)
+    {
+        var userId = GetUserId();
+
+        var validator = new CreateLoanRequestBodyDTOValidator();
+        await validator.ValidateAndThrowAsync(loanRequest);
+
+        var loanApplication = CreateLoanDTOToModel(loanRequest);
+
+        return await _loanService.UpdateLoanAsync(userId, loanId, loanApplication);
+    }
+
     [HttpGet("getall/admin")]
     public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetLoanAsync()
     {
@@ -65,7 +79,7 @@ public class LoanController : ControllerBase
         return await _loanService.GetLoanDetailAsync(loanId);
     }
 
-    private static LoanApplication CreateLoanRequestToApplication(CreateLoanRequestBodyDTO createLoanRequest) => new(
+    private static LoanApplication CreateLoanDTOToModel(CreateLoanRequestBodyDTO createLoanRequest) => new(
             fullName: createLoanRequest.FullName,
             birthDate: createLoanRequest.BirthDate,
             fullAddress: createLoanRequest.FullAddress,

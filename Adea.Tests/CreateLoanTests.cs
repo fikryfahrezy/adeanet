@@ -17,7 +17,7 @@ public class CreateLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
     }
 
     [Fact]
-    public async Task Create_NewLoan_Test()
+    public async Task Create_New_Loan_Success_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -52,6 +52,5 @@ public class CreateLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         Assert.NotEmpty(createdLoan.Id);
 
         await _databaseFixture.ClearDB(context);
-
     }
 }

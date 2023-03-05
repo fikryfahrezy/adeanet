@@ -18,7 +18,7 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
     }
 
     [Fact]
-    public async Task Get_UserLoan_Success_Test()
+    public async Task Get_User_Loan_Success_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -49,16 +49,33 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
             idCard: _fileUploaderFixture.fileMock
          );
 
-        var newLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", loanApplication);
+        var newLoanID = await loanRepository.InsertLoanAsync(newUserID, _fileUploaderFixture.fileName, loanApplication);
         var userLoanDetail = await service.GetUserLoanDetailAsync(newLoanID, newUserID);
 
         Assert.Equal(newLoanID, userLoanDetail.LoanId);
+        Assert.Equal(loanApplication.IsPrivateField, userLoanDetail.IsPrivateField);
+        Assert.Equal(loanApplication.ExpInYear, userLoanDetail.ExpInYear);
+        Assert.Equal(loanApplication.ActiveFieldNumber, userLoanDetail.ActiveFieldNumber);
+        Assert.Equal(loanApplication.SowSeedsPerCycle, userLoanDetail.SowSeedsPerCycle);
+        Assert.Equal(loanApplication.NeededFertilizerPerCycleInKg, userLoanDetail.NeededFertilizerPerCycleInKg);
+        Assert.Equal(loanApplication.EstimatedYieldInKg, userLoanDetail.EstimatedYieldInKg);
+        Assert.Equal(loanApplication.EstimatedPriceOfHarvestPerKg, userLoanDetail.EstimatedPriceOfHarvestPerKg);
+        Assert.Equal(loanApplication.HarvestCycleInMonths, userLoanDetail.HarvestCycleInMonths);
+        Assert.Equal(loanApplication.LoanApplicationInIdr, userLoanDetail.LoanApplicationInIdr);
+        Assert.Equal(loanApplication.BusinessIncomePerMonthInIdr, userLoanDetail.BusinessIncomePerMonthInIdr);
+        Assert.Equal(loanApplication.BusinessOutcomePerMonthInIdr, userLoanDetail.BusinessOutcomePerMonthInIdr);
+        Assert.Equal(loanApplication.FullName, userLoanDetail.FullName);
+        Assert.Equal(loanApplication.BirthDate, userLoanDetail.BirthDate);
+        Assert.Equal(loanApplication.FullAddress, userLoanDetail.FullAddress);
+        Assert.Equal(loanApplication.Phone, userLoanDetail.Phone);
+        Assert.Equal(loanApplication.OtherBusiness, userLoanDetail.OtherBusiness);
+        Assert.Equal(_fileUploaderFixture.fileName, userLoanDetail.IdCardUrl);
 
         await _databaseFixture.ClearDB(context);
     }
 
     [Fact]
-    public async Task Get_UserLoan_Fail_Loan_NotBelong_To_User_Test()
+    public async Task Get_User_Loan_Not_Belong_To_User_Fail_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -100,7 +117,7 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
     }
 
     [Fact]
-    public async Task Get_UserLoan_Fail_Loan_NotFound_Test()
+    public async Task Get_User_Loan_Not_Found_Fail_Test()
     {
         using var context = _databaseFixture.CreateContext();
 

@@ -23,6 +23,7 @@ public class LoanApplicationDAO
     public LoanApplicationDAO()
     {
         Id = Guid.NewGuid().ToString();
+        Status = LoanStatus.Wait.ToString();
         CreatedDate = DateTime.Now;
         UpdatedDate = DateTime.Now;
     }

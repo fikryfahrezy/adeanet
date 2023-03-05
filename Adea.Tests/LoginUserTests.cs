@@ -13,7 +13,7 @@ public class LoginUserTests : IClassFixture<DatabaseFixture>
     }
 
     [Fact(DisplayName = "Login successfully")]
-    public async Task VerifyUser_PropperData_Success()
+    public async Task Login_User_With_Propper_Data_Success_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -34,6 +34,7 @@ public class LoginUserTests : IClassFixture<DatabaseFixture>
 
         Assert.NotEmpty(verifiedUser.Id);
         Assert.Equal(savedUser.Id, verifiedUser.Id);
+        Assert.Equal(user.IsOfficer, verifiedUser.IsOfficer);
 
         await _databaseFixture.ClearDB(context);
     }
@@ -54,7 +55,7 @@ public class LoginUserTests : IClassFixture<DatabaseFixture>
 
     [Theory]
     [MemberData(nameof(VerifyUserFailCases))]
-    public async Task VerifyUser_WrongCredential_Fail(Type type, LoginUser request)
+    public async Task Login_User_With_Wrong_Credential_Fail_Test(Type type, LoginUser request)
     {
         using var context = _databaseFixture.CreateContext();
 

@@ -647,9 +647,9 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
 
     [Theory]
     [MemberData(nameof(CreateLoanValidationCases))]
-    public async Task CreatLoanRequestBodyDTO_Validation_Fail(CreateLoanRequestBodyDTO request)
+    public async Task Create_Loan_Request_Body_DTO_Validation_Fail_Test(CreateLoanRequestBodyDTO request)
     {
-        var validator = new CreatLoanRequestBodyDTOValidator();
+        var validator = new CreateLoanRequestBodyDTOValidator();
         await Assert.ThrowsAsync<ValidationException>(async () => await validator.ValidateAndThrowAsync(request));
     }
 
