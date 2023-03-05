@@ -14,69 +14,51 @@ public class RegisterUserTests : IClassFixture<DatabaseFixture>
     }
 
     public static IEnumerable<object[]> SuccessSaveUserCases
-		=> new object[][] {
+        => new object[][] {
 			// Register as officer successfully
 			new object[] {
-				new RegisterRequestBodyDTO {
-					Username = "nonexsistofficerusername",
-					Password = "password",
-					IsOfficer = true,
-				},
-			},
+                new RegisterUser("nonexsistofficerusername", "password", true),
+            },
 			// Register as non officer successfully
 			new object[] {
-				new RegisterRequestBodyDTO {
-					Username = "nonexsistnonofficerusername",
-					Password = "password",
-					IsOfficer = false,
-				},
-			},
-		};
+                new RegisterUser("nonexsistnonofficerusername", "password", false),
+            },
+        };
 
-	[Theory]
-	[MemberData(nameof(SuccessSaveUserCases))]
-	public async Task SaveUser_ProperData_Success(RegisterRequestBodyDTO request)
-	{
-		using var context = _databaseFixture.CreateContext();
+    [Theory]
+    [MemberData(nameof(SuccessSaveUserCases))]
+    public async Task SaveUser_ProperData_Success(RegisterUser request)
+    {
+        using var context = _databaseFixture.CreateContext();
 
-		var repository = new UserRepository(context);
-		var service = new UserService(repository);
+        var repository = new UserRepository(context);
+        var service = new UserService(repository);
 
-		var user = new RegisterRequestBodyDTO
-		{
-			Username = "username",
-			Password = "password",
-			IsOfficer = true,
-		};
+        var user = new RegisterUser("username", "password", true);
+        var firstServiceResponse = await service.RegisterUserAsync(user);
 
-		var firstServiceResponse = await service.SaveUserAsync(user);
-		Assert.NotEmpty(firstServiceResponse.Id);
+        Assert.NotEmpty(firstServiceResponse.Id);
 
-		var secondServiceResponse = await service.SaveUserAsync(request);
-		Assert.NotEmpty(secondServiceResponse.Id);
+        var secondServiceResponse = await service.RegisterUserAsync(request);
+        Assert.NotEmpty(secondServiceResponse.Id);
 
         await _databaseFixture.ClearDB(context);
     }
 
-	[Fact(DisplayName = "Register fail, username exist")]
-	public async Task SaveUser_DuplicateUsername_Fail()
-	{
-		using var context = _databaseFixture.CreateContext();
+    [Fact(DisplayName = "Register fail, username exist")]
+    public async Task SaveUser_DuplicateUsername_Fail()
+    {
+        using var context = _databaseFixture.CreateContext();
 
-		var repository = new UserRepository(context);
-		var service = new UserService(repository);
+        var repository = new UserRepository(context);
+        var service = new UserService(repository);
 
-		var user = new RegisterRequestBodyDTO
-		{
-			Username = "username",
-			Password = "password",
-			IsOfficer = true,
-		};
+        var user = new RegisterUser("username", "password", true);
 
-		var serviceResponse = await service.SaveUserAsync(user);
-		Assert.NotEmpty(serviceResponse.Id);
-		await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.SaveUserAsync(user));
+        var serviceResponse = await service.RegisterUserAsync(user);
+        Assert.NotEmpty(serviceResponse.Id);
+        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.RegisterUserAsync(user));
 
-		await _databaseFixture.ClearDB(context);
-	}
+        await _databaseFixture.ClearDB(context);
+    }
 }

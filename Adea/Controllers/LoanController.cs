@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Adea.DTO;
 using Adea.Loan;
 using Adea.Exceptions;
 using FluentValidation;
@@ -21,7 +22,10 @@ public class LoanController : ControllerBase
         var userId = GetUserId();
         var validator = new CreatLoanRequestBodyDTOValidator();
         await validator.ValidateAndThrowAsync(loanRequest);
-        return await _loanService.CreateLoanAsync(userId, loanRequest);
+
+        var loanApplication = CreateLoanRequestToApplication(loanRequest);
+
+        return await _loanService.CreateLoanAsync(userId, loanApplication);
     }
 
     [HttpGet("getall")]
@@ -60,4 +64,24 @@ public class LoanController : ControllerBase
     {
         return await _loanService.GetLoanDetailAsync(loanId);
     }
+
+    private static LoanApplication CreateLoanRequestToApplication(CreateLoanRequestBodyDTO createLoanRequest) => new(
+            fullName: createLoanRequest.FullName,
+            birthDate: createLoanRequest.BirthDate,
+            fullAddress: createLoanRequest.FullAddress,
+            phone: createLoanRequest.Phone,
+            otherBusiness: createLoanRequest.OtherBusiness,
+            isPrivateField: createLoanRequest.IsPrivateField,
+            expInYear: createLoanRequest.ExpInYear,
+            activeFieldNumber: createLoanRequest.ActiveFieldNumber,
+            sowSeedsPerCycle: createLoanRequest.SowSeedsPerCycle,
+            neededFertilizerPerCycleInKg: createLoanRequest.NeededFertilizerPerCycleInKg,
+            estimatedYieldInKg: createLoanRequest.EstimatedYieldInKg,
+            estimatedPriceOfHarvestPerKg: createLoanRequest.EstimatedPriceOfHarvestPerKg,
+            harvestCycleInMonths: createLoanRequest.HarvestCycleInMonths,
+            loanApplicationInIdr: createLoanRequest.LoanApplicationInIdr,
+            businessIncomePerMonthInIdr: createLoanRequest.BusinessIncomePerMonthInIdr,
+            businessOutcomePerMonthInIdr: createLoanRequest.BusinessOutcomePerMonthInIdr,
+            idCard: createLoanRequest.IdCard
+    );
 }

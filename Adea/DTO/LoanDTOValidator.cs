@@ -1,7 +1,7 @@
 using FluentValidation;
 using System.Globalization;
 
-namespace Adea.Loan;
+namespace Adea.DTO;
 
 public class CreatLoanRequestBodyDTOValidator : AbstractValidator<CreateLoanRequestBodyDTO>
 {

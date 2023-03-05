@@ -1,8 +1,8 @@
 using Adea.Interface;
 using Adea.Models;
 using Adea.User;
+using Adea.DTO;
 using Adea.Exceptions;
-using System.Numerics;
 
 namespace Adea.Loan;
 
@@ -19,82 +19,32 @@ public class LoanService
         _fileUploader = fileUploader;
     }
 
-    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, CreateLoanRequestBodyDTO loanRequest)
+    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, LoanApplication loanApplication)
     {
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
         foreach (var userLoan in userLoans)
         {
-            if (userLoan.Status.ToString() == LoanStatus.Wait.ToString() || userLoan.Status.ToString() == LoanStatus.Process.ToString())
+            if (userLoan.LoanStatus == LoanStatus.Wait.ToString() || userLoan.LoanStatus == LoanStatus.Process.ToString())
             {
                 throw new UnprocessableEntityException("Already have processed loan");
             }
         }
 
-        var idCardFilePath = "";
-
-        if (loanRequest.IdCard is not null)
-        {
-            idCardFilePath = await _fileUploader.UploadFileAsync(loanRequest.IdCard);
-        }
-
-        var newLoanApplication = LoanApplicationDTOtoDAO(userId, idCardFilePath, loanRequest);
-        await _loanRepository.InsertLoanAsync(newLoanApplication);
+        var idCardFilePath = await _fileUploader.UploadFileAsync(loanApplication.IdCard);
+        var newLoanApplicationID = await _loanRepository.InsertLoanAsync(userId, idCardFilePath, loanApplication);
 
         return new CreateLoanResponseBodyDTO
         {
-            Id = newLoanApplication.Id,
+            Id = newLoanApplicationID,
         };
     }
-
-    private static LoanApplicationDAO LoanApplicationDTOtoDAO(string userId, string idCardUrl, CreateLoanRequestBodyDTO loanRequest) => new()
-    {
-        IsPrivateField = loanRequest.IsPrivateField,
-        ExpInYear = loanRequest.ExpInYear,
-        ActiveFieldNumber = loanRequest.ActiveFieldNumber,
-        SowSeedsPerCycle = loanRequest.SowSeedsPerCycle,
-        NeededFertilizerPerCycleInKg = loanRequest.NeededFertilizerPerCycleInKg,
-        EstimatedYieldInKg = loanRequest.EstimatedYieldInKg,
-        EstimatedPriceOfHarvestPerKg = loanRequest.EstimatedPriceOfHarvestPerKg,
-        HarvestCycleInMonths = loanRequest.HarvestCycleInMonths,
-        LoanApplicationInIdr = loanRequest.LoanApplicationInIdr,
-        BusinessIncomePerMonthInIdr = loanRequest.BusinessIncomePerMonthInIdr,
-        BusinessOutcomePerMonthInIdr = loanRequest.BusinessOutcomePerMonthInIdr,
-        UserId = userId,
-        FullName = loanRequest.FullName,
-        BirthDate = loanRequest.BirthDate,
-        FullAddress = loanRequest.FullAddress,
-        Phone = loanRequest.Phone,
-        IdCardUrl = idCardUrl,
-        OtherBusiness = loanRequest.OtherBusiness
-    };
 
     public async Task<List<GetLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
     {
         await CheckUserExistenceAndThrowAsync(userId);
 
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
-        return userLoans
-            .Select(LoanApplicationDAOtoLoanDTO)
-            .ToList();
-    }
-
-    private static GetLoanResponseBodyDTO LoanApplicationDAOtoLoanDTO(LoanApplicationDAO loan) => new()
-    {
-        FullName = loan.FullName,
-        LoanCreatedDate = loan.CreatedDate.ToString("2006-01-02"),
-        LoanId = loan.Id,
-        LoanStatus = loan.Status,
-        UserId = loan.UserId,
-    };
-
-    private async Task CheckUserExistenceAndThrowAsync(string userId)
-    {
-        var user = await _userRepository.GetUserByUserIdAsync(userId);
-
-        if (user is null)
-        {
-            throw new NotFoundException($"User with {userId} not found");
-        }
+        return userLoans.Select(LoanModeltoLoanDTO).ToList();
     }
 
     public async Task<GetLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
@@ -106,10 +56,46 @@ public class LoanService
             throw new NotFoundException($"User id {userId} with loan id {loanId} not found");
         }
 
-        return LoanApplicationDAOtoLoanDetailDTO(userLoan);
+        return LoanModeltoLoanDetailDTO(userLoan);
     }
 
-    private static GetLoanDetailResponseBodyDTO LoanApplicationDAOtoLoanDetailDTO(LoanApplicationDAO loanApplication) => new()
+    public async Task<List<GetLoanResponseBodyDTO>> GetLoansAsync()
+    {
+        var loans = await _loanRepository.GetLoansAsync();
+        return loans.Select(LoanModeltoLoanDTO).ToList();
+    }
+
+    public async Task<GetLoanDetailResponseBodyDTO> GetLoanDetailAsync(string loanId)
+    {
+        var loan = await _loanRepository.GetLoanAsync(loanId);
+
+        if (loan is null)
+        {
+            throw new NotFoundException($"Loan with {loanId} not found");
+        }
+        return LoanModeltoLoanDetailDTO(loan);
+    }
+
+    private async Task CheckUserExistenceAndThrowAsync(string userId)
+    {
+        var user = await _userRepository.GetUserByUserIdAsync(userId);
+
+        if (user is null)
+        {
+            throw new NotFoundException($"User with {userId} not found");
+        }
+    }
+
+    private static GetLoanResponseBodyDTO LoanModeltoLoanDTO(Loan loan) => new()
+    {
+        FullName = loan.FullName,
+        LoanCreatedDate = loan.LoanCreatedDate,
+        LoanId = loan.LoanId,
+        LoanStatus = loan.LoanStatus,
+        UserId = loan.UserId,
+    };
+
+    private static GetLoanDetailResponseBodyDTO LoanModeltoLoanDetailDTO(LoanApplicationDAO loanApplication) => new()
     {
         IsPrivateField = loanApplication.IsPrivateField,
         ExpInYear = loanApplication.ExpInYear,
@@ -132,21 +118,4 @@ public class LoanService
         IdCardUrl = loanApplication.IdCardUrl,
         Status = loanApplication.Status,
     };
-
-    public async Task<List<GetLoanResponseBodyDTO>> GetLoansAsync()
-    {
-        var loans = await _loanRepository.GetLoansAsync();
-        return loans.Select(LoanApplicationDAOtoLoanDTO).ToList();
-    }
-
-    public async Task<GetLoanDetailResponseBodyDTO> GetLoanDetailAsync(string loanId)
-    {
-        var loan = await _loanRepository.GetLoanAsync(loanId);
-
-        if (loan is null)
-        {
-            throw new NotFoundException($"Loan with {loanId} not found");
-        }
-        return LoanApplicationDAOtoLoanDetailDTO(loan);
-    }
 }

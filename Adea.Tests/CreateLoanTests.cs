@@ -25,37 +25,30 @@ public class CreateLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         var userRepository = new UserRepository(context);
         var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
-        var user = new UserDAO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser("username", "password", true);
+        var newUserID = await userRepository.InsertUserAsync(user);
 
-        await userRepository.InsertUserAsync(user);
+        var newLoan = new LoanApplication(
+            isPrivateField: true,
+            expInYear: 1,
+            activeFieldNumber: 1,
+            sowSeedsPerCycle: 1,
+            neededFertilizerPerCycleInKg: 1,
+            estimatedYieldInKg: 1,
+            estimatedPriceOfHarvestPerKg: 1,
+            harvestCycleInMonths: 1,
+            loanApplicationInIdr: 1,
+            businessIncomePerMonthInIdr: 1,
+            businessOutcomePerMonthInIdr: 1,
+            fullName: "Full Name",
+            birthDate: "2006-01-02",
+            fullAddress: "Full Address",
+            phone: "0000000000",
+            otherBusiness: "-",
+            idCard: _fileUploaderFixture.fileMock
+         );
 
-        var newLoan = new CreateLoanRequestBodyDTO
-        {
-            IsPrivateField = true,
-            ExpInYear = 1,
-            ActiveFieldNumber = 1,
-            SowSeedsPerCycle = 1,
-            NeededFertilizerPerCycleInKg = 1,
-            EstimatedYieldInKg = 1,
-            EstimatedPriceOfHarvestPerKg = 1,
-            HarvestCycleInMonths = 1,
-            LoanApplicationInIdr = 1,
-            BusinessIncomePerMonthInIdr = 1,
-            BusinessOutcomePerMonthInIdr = 1,
-            FullName = "Full Name",
-            BirthDate = "2006-01-02",
-            FullAddress = "Full Address",
-            Phone = "0000000000",
-            OtherBusiness = "-",
-            IdCard = _fileUploaderFixture.fileMock,
-        };
-
-        var createdLoan = await service.CreateLoanAsync(user.Id, newLoan);
+        var createdLoan = await service.CreateLoanAsync(newUserID, newLoan);
         Assert.NotEmpty(createdLoan.Id);
 
         await _databaseFixture.ClearDB(context);

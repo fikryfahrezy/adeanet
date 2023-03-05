@@ -1,4 +1,3 @@
-
 using Xunit;
 using Adea.Exceptions;
 using Adea.User;
@@ -21,24 +20,18 @@ public class LoginUserTests : IClassFixture<DatabaseFixture>
         var repository = new UserRepository(context);
         var service = new UserService(repository);
 
-        var user = new RegisterRequestBodyDTO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser(
+            username: "username",
+            password: "password",
+            isOfficer: true
+        );
 
-        var savedUser = await service.SaveUserAsync(user);
+        var savedUser = await service.RegisterUserAsync(user);
         Assert.NotNull(savedUser.Id);
 
+        var identity = new LoginUser("username", "password");
+        var verifiedUser = await service.LoginUserAsync(identity);
 
-        var identity = new LoginRequestBodyDTO
-        {
-            Username = "username",
-            Password = "password",
-        };
-
-        var verifiedUser = await service.VerifyUserAsync(identity);
         Assert.NotEmpty(verifiedUser.Id);
         Assert.Equal(savedUser.Id, verifiedUser.Id);
 
@@ -50,43 +43,34 @@ public class LoginUserTests : IClassFixture<DatabaseFixture>
 			// Login fail, password not match
 			new object[] {
                 typeof(UnauthorizedException),
-                new LoginRequestBodyDTO
-                {
-                    Username = "username",
-                    Password = "passwordx",
-                },
+                new LoginUser("username", "passwordx")
             },
 			// Login fail, user not found
 			new object[] {
                 typeof(NotFoundException),
-                new LoginRequestBodyDTO
-                {
-                    Username = "usernamex",
-                    Password = "password",
-                },
+                new LoginUser("usernamex", "password"),
             },
         };
 
     [Theory]
     [MemberData(nameof(VerifyUserFailCases))]
-    public async Task VerifyUser_WrongCredential_Fail(Type type, LoginRequestBodyDTO request)
+    public async Task VerifyUser_WrongCredential_Fail(Type type, LoginUser request)
     {
         using var context = _databaseFixture.CreateContext();
 
         var repository = new UserRepository(context);
         var service = new UserService(repository);
 
-        var user = new RegisterRequestBodyDTO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser(
+             username: "username",
+             password: "password",
+             isOfficer: true
+         );
 
-        var savedUser = await service.SaveUserAsync(user);
+        var savedUser = await service.RegisterUserAsync(user);
         Assert.NotEmpty(savedUser.Id);
 
-        await Assert.ThrowsAsync(type, async () => await service.VerifyUserAsync(request));
+        await Assert.ThrowsAsync(type, async () => await service.LoginUserAsync(request));
 
         await _databaseFixture.ClearDB(context);
     }

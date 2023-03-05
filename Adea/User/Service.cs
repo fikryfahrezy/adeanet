@@ -1,5 +1,6 @@
 using Adea.Common;
 using Adea.Models;
+using Adea.DTO;
 using Adea.Exceptions;
 
 namespace Adea.User;
@@ -14,7 +15,7 @@ public class UserService
         _userRepository = userRepository;
     }
 
-    public async Task<RegisterResponseBodyDTO> SaveUserAsync(RegisterRequestBodyDTO request)
+    public async Task<RegisterResponseBodyDTO> RegisterUserAsync(RegisterUser request)
     {
         await CheckUsernameExistAndThrowAsync(request.Username);
 
@@ -25,19 +26,29 @@ public class UserService
             config: null
         );
 
-        var user = new UserDAO
-        {
-            Username = request.Username,
-            Password = hashedPassword,
-            IsOfficer = request.IsOfficer
-        };
 
-        await _userRepository.InsertUserAsync(user);
+        var newUserID = await _userRepository.InsertUserAsync(new RegisterUser(
+            username: request.Username,
+            password: hashedPassword,
+            isOfficer: request.IsOfficer
+        ));
 
         return new RegisterResponseBodyDTO
         {
-            Id = user.Id,
-            IsOfficer = user.IsOfficer
+            Id = newUserID,
+            IsOfficer = request.IsOfficer
+        };
+    }
+
+    public async Task<LoginResponseBodyDTO> LoginUserAsync(LoginUser user)
+    {
+        var existingUser = await GetUserByUsernameAsync(user.Username);
+        VerifyUserPasswordAndThrow(user.Password, existingUser.Password);
+
+        return new LoginResponseBodyDTO
+        {
+            Id = existingUser.Id,
+            IsOfficer = existingUser.IsOfficer
         };
     }
 
@@ -60,18 +71,6 @@ public class UserService
         }
 
         return user;
-    }
-
-    public async Task<LoginResponseBodyDTO> VerifyUserAsync(LoginRequestBodyDTO request)
-    {
-        var user = await GetUserByUsernameAsync(request.Username);
-        VerifyUserPasswordAndThrow(request.Password, user.Password);
-
-        return new LoginResponseBodyDTO
-        {
-            Id = user.Id,
-            IsOfficer = user.IsOfficer
-        };
     }
 
     private static void VerifyUserPasswordAndThrow(string requestPassword, string userPassword)

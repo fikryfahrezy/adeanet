@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
-namespace Adea.Loan;
+namespace Adea.DTO;
 
 public class CreateLoanRequestBodyDTO
 {

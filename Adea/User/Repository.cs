@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Adea.Data;
 using Adea.Models;
-using Adea.Exceptions;
 
 namespace Adea.User;
 
@@ -15,10 +14,19 @@ public class UserRepository
         _dbContext = dbContext;
     }
 
-    public async Task InsertUserAsync(UserDAO user)
+    public async Task<string> InsertUserAsync(RegisterUser user)
     {
-        _dbContext.Users.Add(user);
+        var userDAO = new UserDAO
+        {
+            Username = user.Username,
+            Password = user.Password,
+            IsOfficer = user.IsOfficer
+        };
+
+        _dbContext.Users.Add(userDAO);
         await _dbContext.SaveChangesAsync();
+
+        return userDAO.Id.ToString();
     }
 
     public async Task<UserDAO?> GetUserByUsernameAsync(string username)

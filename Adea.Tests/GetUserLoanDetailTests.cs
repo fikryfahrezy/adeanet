@@ -26,41 +26,33 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
         var userRepository = new UserRepository(context);
         var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
-        var user = new UserDAO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser("username", "password", true);
+        var newUserID = await userRepository.InsertUserAsync(user);
 
-        await userRepository.InsertUserAsync(user);
+        var loanApplication = new LoanApplication(
+            isPrivateField: true,
+            expInYear: 1,
+            activeFieldNumber: 1,
+            sowSeedsPerCycle: 1,
+            neededFertilizerPerCycleInKg: 1,
+            estimatedYieldInKg: 1,
+            estimatedPriceOfHarvestPerKg: 1,
+            harvestCycleInMonths: 1,
+            loanApplicationInIdr: 1,
+            businessIncomePerMonthInIdr: 1,
+            businessOutcomePerMonthInIdr: 1,
+            fullName: "Full Name",
+            birthDate: "2006-01-02",
+            fullAddress: "Full Address",
+            phone: "0000000000",
+            otherBusiness: "-",
+            idCard: _fileUploaderFixture.fileMock
+         );
 
-        var newLoan = new LoanApplicationDAO
-        {
-            IsPrivateField = true,
-            ExpInYear = 1,
-            ActiveFieldNumber = 1,
-            SowSeedsPerCycle = 1,
-            NeededFertilizerPerCycleInKg = 1,
-            EstimatedYieldInKg = 1,
-            EstimatedPriceOfHarvestPerKg = 1,
-            HarvestCycleInMonths = 1,
-            LoanApplicationInIdr = 1,
-            BusinessIncomePerMonthInIdr = 1,
-            BusinessOutcomePerMonthInIdr = 1,
-            FullName = "Full Name",
-            BirthDate = "2006-01-02",
-            FullAddress = "Full Address",
-            Phone = "0000000000",
-            OtherBusiness = "-",
-            UserId = user.Id,
-            IdCardUrl = "http://random",
-        };
+        var newLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", loanApplication);
+        var userLoanDetail = await service.GetUserLoanDetailAsync(newLoanID, newUserID);
 
-        await loanRepository.InsertLoanAsync(newLoan);
-
-        var userLoanDetail = await service.GetUserLoanDetailAsync(newLoan.Id, user.Id);
-        Assert.Equal(newLoan.Id, userLoanDetail.LoanId);
+        Assert.Equal(newLoanID, userLoanDetail.LoanId);
 
         await _databaseFixture.ClearDB(context);
     }
@@ -74,49 +66,35 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
         var userRepository = new UserRepository(context);
         var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
-        var user = new UserDAO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser("username", "password", true);
+        var newUserID = await userRepository.InsertUserAsync(user);
 
-        await userRepository.InsertUserAsync(user);
+        var user2 = new RegisterUser("username2", "password", true);
+        var newUser2ID = await userRepository.InsertUserAsync(user2);
 
-        var user2 = new UserDAO
-        {
-            Username = "username2",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var loanApplication = new LoanApplication(
+            isPrivateField: true,
+            expInYear: 1,
+            activeFieldNumber: 1,
+            sowSeedsPerCycle: 1,
+            neededFertilizerPerCycleInKg: 1,
+            estimatedYieldInKg: 1,
+            estimatedPriceOfHarvestPerKg: 1,
+            harvestCycleInMonths: 1,
+            loanApplicationInIdr: 1,
+            businessIncomePerMonthInIdr: 1,
+            businessOutcomePerMonthInIdr: 1,
+            fullName: "Full Name",
+            birthDate: "2006-01-02",
+            fullAddress: "Full Address",
+            phone: "0000000000",
+            otherBusiness: "-",
+            idCard: _fileUploaderFixture.fileMock
+         );
 
-        await userRepository.InsertUserAsync(user2);
+        var newLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", loanApplication);
 
-        var newLoan = new LoanApplicationDAO
-        {
-            IsPrivateField = true,
-            ExpInYear = 1,
-            ActiveFieldNumber = 1,
-            SowSeedsPerCycle = 1,
-            NeededFertilizerPerCycleInKg = 1,
-            EstimatedYieldInKg = 1,
-            EstimatedPriceOfHarvestPerKg = 1,
-            HarvestCycleInMonths = 1,
-            LoanApplicationInIdr = 1,
-            BusinessIncomePerMonthInIdr = 1,
-            BusinessOutcomePerMonthInIdr = 1,
-            FullName = "Full Name",
-            BirthDate = "2006-01-02",
-            FullAddress = "Full Address",
-            Phone = "0000000000",
-            OtherBusiness = "-",
-            UserId = user.Id,
-            IdCardUrl = "http://random",
-        };
-
-        await loanRepository.InsertLoanAsync(newLoan);
-
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.GetUserLoanDetailAsync(newLoan.Id, user2.Id));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await service.GetUserLoanDetailAsync(newLoanID, newUser2ID));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -130,16 +108,10 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
         var userRepository = new UserRepository(context);
         var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
-        var user = new UserDAO
-        {
-            Username = "username",
-            Password = "password",
-            IsOfficer = true,
-        };
+        var user = new RegisterUser("username", "password", true);
+        var newUserID = await userRepository.InsertUserAsync(user);
 
-        await userRepository.InsertUserAsync(user);
-
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.GetUserLoanDetailAsync("some-random-loan-id", user.Id));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await service.GetUserLoanDetailAsync("some-random-loan-id", newUserID));
 
         await _databaseFixture.ClearDB(context);
     }

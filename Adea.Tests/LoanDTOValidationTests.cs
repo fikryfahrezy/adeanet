@@ -1,4 +1,4 @@
-﻿using Adea.Loan;
+﻿using Adea.DTO;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Xunit;

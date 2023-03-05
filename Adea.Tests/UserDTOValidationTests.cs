@@ -1,4 +1,4 @@
-﻿using Adea.User;
+﻿using Adea.DTO;
 using FluentValidation;
 using Xunit;
 
