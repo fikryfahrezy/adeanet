@@ -15,6 +15,59 @@ public class LoanRepository
         _dbContext = dbContext;
     }
 
+    private static LoanApplicationDAO LoanModeltoDAO(string userId, string idCardUrl, LoanApplication loanApplication) => new()
+    {
+        IsPrivateField = loanApplication.IsPrivateField,
+        ExpInYear = loanApplication.ExpInYear,
+        ActiveFieldNumber = loanApplication.ActiveFieldNumber,
+        SowSeedsPerCycle = loanApplication.SowSeedsPerCycle,
+        NeededFertilizerPerCycleInKg = loanApplication.NeededFertilizerPerCycleInKg,
+        EstimatedYieldInKg = loanApplication.EstimatedYieldInKg,
+        EstimatedPriceOfHarvestPerKg = loanApplication.EstimatedPriceOfHarvestPerKg,
+        HarvestCycleInMonths = loanApplication.HarvestCycleInMonths,
+        LoanApplicationInIdr = loanApplication.LoanApplicationInIdr,
+        BusinessIncomePerMonthInIdr = loanApplication.BusinessIncomePerMonthInIdr,
+        BusinessOutcomePerMonthInIdr = loanApplication.BusinessOutcomePerMonthInIdr,
+        UserId = userId,
+        FullName = loanApplication.FullName,
+        BirthDate = loanApplication.BirthDate,
+        FullAddress = loanApplication.FullAddress,
+        Phone = loanApplication.Phone,
+        IdCardUrl = idCardUrl,
+        OtherBusiness = loanApplication.OtherBusiness
+    };
+
+    private static Loan LoanDAOtoLoanModel(LoanApplicationDAO loan) => new(
+        fullName: loan.FullName,
+        loanCreatedDate: loan.CreatedDate.ToString("2006-01-02"),
+        loanId: loan.Id,
+        loanStatus: loan.Status,
+        userId: loan.UserId
+    );
+
+    private static LoanDetail LoanDetailDAOtoLoanDetailModel(LoanApplicationDAO loanApplication) => new(
+        isPrivateField: loanApplication.IsPrivateField,
+        expInYear: loanApplication.ExpInYear,
+        activeFieldNumber: loanApplication.ActiveFieldNumber,
+        sowSeedsPerCycle: loanApplication.SowSeedsPerCycle,
+        neededFertilizerPerCycleInKg: loanApplication.NeededFertilizerPerCycleInKg,
+        estimatedYieldInKg: loanApplication.EstimatedPriceOfHarvestPerKg,
+        estimatedPriceOfHarvestPerKg: loanApplication.EstimatedPriceOfHarvestPerKg,
+        harvestCycleInMonths: loanApplication.HarvestCycleInMonths,
+        loanApplicationInIdr: loanApplication.LoanApplicationInIdr,
+        businessIncomePerMonthInIdr: loanApplication.BusinessIncomePerMonthInIdr,
+        businessOutcomePerMonthInIdr: loanApplication.BusinessOutcomePerMonthInIdr,
+        loanId: loanApplication.Id,
+        userId: loanApplication.UserId,
+        fullName: loanApplication.FullName,
+        birthDate: loanApplication.BirthDate,
+        fullAddress: loanApplication.FullAddress,
+        phone: loanApplication.Phone,
+        otherBusiness: loanApplication.OtherBusiness,
+        idCardUrl: loanApplication.IdCardUrl,
+        status: loanApplication.Status
+    );
+
     public async Task<IEnumerable<Loan>> GetUserLoansAsync(string userId)
     {
         var loanApplications = await _dbContext.LoanApplications.Where(l => l.UserId == userId).ToListAsync();
@@ -86,56 +139,17 @@ public class LoanRepository
         return LoanDetailDAOtoLoanDetailModel(loan);
     }
 
-    private static LoanApplicationDAO LoanModeltoDAO(string userId, string idCardUrl, LoanApplication loanApplication) => new()
+    public async Task<string> RemoveLoanAsync(string loanId, string userId)
     {
-        IsPrivateField = loanApplication.IsPrivateField,
-        ExpInYear = loanApplication.ExpInYear,
-        ActiveFieldNumber = loanApplication.ActiveFieldNumber,
-        SowSeedsPerCycle = loanApplication.SowSeedsPerCycle,
-        NeededFertilizerPerCycleInKg = loanApplication.NeededFertilizerPerCycleInKg,
-        EstimatedYieldInKg = loanApplication.EstimatedYieldInKg,
-        EstimatedPriceOfHarvestPerKg = loanApplication.EstimatedPriceOfHarvestPerKg,
-        HarvestCycleInMonths = loanApplication.HarvestCycleInMonths,
-        LoanApplicationInIdr = loanApplication.LoanApplicationInIdr,
-        BusinessIncomePerMonthInIdr = loanApplication.BusinessIncomePerMonthInIdr,
-        BusinessOutcomePerMonthInIdr = loanApplication.BusinessOutcomePerMonthInIdr,
-        UserId = userId,
-        FullName = loanApplication.FullName,
-        BirthDate = loanApplication.BirthDate,
-        FullAddress = loanApplication.FullAddress,
-        Phone = loanApplication.Phone,
-        IdCardUrl = idCardUrl,
-        OtherBusiness = loanApplication.OtherBusiness
-    };
+        var loan = await _dbContext.LoanApplications.Where(l => l.Id == loanId && l.UserId == userId).FirstOrDefaultAsync();
+        if (loan is null)
+        {
+            throw new NotFoundException($"User id {userId} with loan id {loanId} not found");
+        }
 
-    private static Loan LoanDAOtoLoanModel(LoanApplicationDAO loan) => new(
-        fullName: loan.FullName,
-        loanCreatedDate: loan.CreatedDate.ToString("2006-01-02"),
-        loanId: loan.Id,
-        loanStatus: loan.Status,
-        userId: loan.UserId
-    );
+        _dbContext.LoanApplications.Remove(loan);
+        await _dbContext.SaveChangesAsync();
 
-    private static LoanDetail LoanDetailDAOtoLoanDetailModel(LoanApplicationDAO loanApplication) => new(
-        isPrivateField: loanApplication.IsPrivateField,
-        expInYear: loanApplication.ExpInYear,
-        activeFieldNumber: loanApplication.ActiveFieldNumber,
-        sowSeedsPerCycle: loanApplication.SowSeedsPerCycle,
-        neededFertilizerPerCycleInKg: loanApplication.NeededFertilizerPerCycleInKg,
-        estimatedYieldInKg: loanApplication.EstimatedPriceOfHarvestPerKg,
-        estimatedPriceOfHarvestPerKg: loanApplication.EstimatedPriceOfHarvestPerKg,
-        harvestCycleInMonths: loanApplication.HarvestCycleInMonths,
-        loanApplicationInIdr: loanApplication.LoanApplicationInIdr,
-        businessIncomePerMonthInIdr: loanApplication.BusinessIncomePerMonthInIdr,
-        businessOutcomePerMonthInIdr: loanApplication.BusinessOutcomePerMonthInIdr,
-        loanId: loanApplication.Id,
-        userId: loanApplication.UserId,
-        fullName: loanApplication.FullName,
-        birthDate: loanApplication.BirthDate,
-        fullAddress: loanApplication.FullAddress,
-        phone: loanApplication.Phone,
-        otherBusiness: loanApplication.OtherBusiness,
-        idCardUrl: loanApplication.IdCardUrl,
-        status: loanApplication.Status
-    );
+        return loan.Id;
+    }
 }

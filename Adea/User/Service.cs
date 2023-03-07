@@ -15,6 +15,35 @@ public class UserService
         _userRepository = userRepository;
     }
 
+    private async Task CheckUsernameExistAndThrowAsync(string username)
+    {
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+        if (user != null)
+        {
+            throw new UnprocessableEntityException($"Username {username} already exist");
+        }
+    }
+
+    private async Task<UserDAO> GetUserByUsernameAsync(string username)
+    {
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+
+        if (user == null)
+        {
+            throw new NotFoundException($"Username {username} not exist");
+        }
+
+        return user;
+    }
+
+    private static void VerifyUserPasswordAndThrow(string requestPassword, string userPassword)
+    {
+        if (!Argon2.Verify(requestPassword, userPassword))
+        {
+            throw new UnauthorizedException("Password not match");
+        }
+    }
+
     public async Task<RegisterResponseBodyDTO> RegisterUserAsync(RegisterUser request)
     {
         await CheckUsernameExistAndThrowAsync(request.Username);
@@ -50,34 +79,5 @@ public class UserService
             Id = existingUser.Id,
             IsOfficer = existingUser.IsOfficer
         };
-    }
-
-    private async Task CheckUsernameExistAndThrowAsync(string username)
-    {
-        var user = await _userRepository.GetUserByUsernameAsync(username);
-        if (user != null)
-        {
-            throw new UnprocessableEntityException($"Username {username} already exist");
-        }
-    }
-
-    private async Task<UserDAO> GetUserByUsernameAsync(string username)
-    {
-        var user = await _userRepository.GetUserByUsernameAsync(username);
-
-        if (user == null)
-        {
-            throw new NotFoundException($"Username {username} not exist");
-        }
-
-        return user;
-    }
-
-    private static void VerifyUserPasswordAndThrow(string requestPassword, string userPassword)
-    {
-        if (!Argon2.Verify(requestPassword, userPassword))
-        {
-            throw new UnauthorizedException("Password not match");
-        }
     }
 }

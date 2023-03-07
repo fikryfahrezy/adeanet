@@ -67,6 +67,14 @@ public class LoanController : ControllerBase
         return await _loanService.UpdateLoanAsync(userId, loanId, loanApplication);
     }
 
+
+    [HttpPut("update/{loanId}")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> DeleteLoanApplicationAsync(string loanId)
+    {
+        var userId = GetUserId();
+        return await _loanService.DeleteLoanAsync(userId, loanId);
+    }
+
     [HttpGet("getall/admin")]
     public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetLoanAsync()
     {

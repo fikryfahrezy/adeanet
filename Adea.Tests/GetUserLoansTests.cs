@@ -24,7 +24,7 @@ public class GetUserLoansTests : IClassFixture<DatabaseFixture>, IClassFixture<F
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -75,7 +75,7 @@ public class GetUserLoansTests : IClassFixture<DatabaseFixture>, IClassFixture<F
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);

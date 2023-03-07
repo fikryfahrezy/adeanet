@@ -9,27 +9,55 @@ namespace Adea.Loan;
 public class LoanService
 {
     private readonly LoanRepository _loanRepository;
-    private readonly UserRepository _userRepository;
     private readonly IFileUploader _fileUploader;
 
-    public LoanService(LoanRepository loanRepository, UserRepository userRepository, IFileUploader fileUploader)
+    public LoanService(LoanRepository loanRepository, IFileUploader fileUploader)
     {
         _loanRepository = loanRepository;
-        _userRepository = userRepository;
         _fileUploader = fileUploader;
     }
 
+    private static GetLoanResponseBodyDTO LoanModeltoLoanDTO(Loan loan) => new()
+    {
+        FullName = loan.FullName,
+        LoanCreatedDate = loan.LoanCreatedDate,
+        LoanId = loan.LoanId,
+        LoanStatus = loan.LoanStatus,
+        UserId = loan.UserId,
+    };
+
+    private static GetLoanDetailResponseBodyDTO LoanDetailModeltoLoanDetailDTO(LoanDetail loanDetail) => new()
+    {
+        IsPrivateField = loanDetail.IsPrivateField,
+        ExpInYear = loanDetail.ExpInYear,
+        ActiveFieldNumber = loanDetail.ActiveFieldNumber,
+        SowSeedsPerCycle = loanDetail.SowSeedsPerCycle,
+        NeededFertilizerPerCycleInKg = loanDetail.NeededFertilizerPerCycleInKg,
+        EstimatedYieldInKg = loanDetail.EstimatedYieldInKg,
+        EstimatedPriceOfHarvestPerKg = loanDetail.EstimatedPriceOfHarvestPerKg,
+        HarvestCycleInMonths = loanDetail.HarvestCycleInMonths,
+        LoanApplicationInIdr = loanDetail.LoanApplicationInIdr,
+        BusinessIncomePerMonthInIdr = loanDetail.BusinessIncomePerMonthInIdr,
+        BusinessOutcomePerMonthInIdr = loanDetail.BusinessOutcomePerMonthInIdr,
+        LoanId = loanDetail.LoanId,
+        UserId = loanDetail.UserId,
+        FullName = loanDetail.FullName,
+        BirthDate = loanDetail.BirthDate,
+        FullAddress = loanDetail.FullAddress,
+        Phone = loanDetail.Phone,
+        OtherBusiness = loanDetail.OtherBusiness,
+        IdCardUrl = loanDetail.IdCardUrl,
+        Status = loanDetail.Status,
+    };
+
     public async Task<List<GetLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
     {
-        await CheckUserExistenceAndThrowAsync(userId);
-
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
         return userLoans.Select(LoanModeltoLoanDTO).ToList();
     }
 
     public async Task<GetLoanDetailResponseBodyDTO> GetUserLoanDetailAsync(string loanId, string userId)
     {
-        await CheckUserExistenceAndThrowAsync(userId);
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
         return LoanDetailModeltoLoanDetailDTO(userLoan);
     }
@@ -72,8 +100,6 @@ public class LoanService
 
     public async Task<CreateLoanResponseBodyDTO> UpdateLoanAsync(string userId, string loanId, LoanApplication loanApplication)
     {
-        await CheckUserExistenceAndThrowAsync(userId);
-
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
         if (userLoan.Status != LoanStatus.Wait.ToString())
         {
@@ -94,46 +120,19 @@ public class LoanService
         };
     }
 
-    private async Task CheckUserExistenceAndThrowAsync(string userId)
+    public async Task<CreateLoanResponseBodyDTO> DeleteLoanAsync(string userId, string loanId)
     {
-        var user = await _userRepository.GetUserByUserIdAsync(userId);
-
-        if (user is null)
+        var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
+        if (userLoan.Status != LoanStatus.Wait.ToString())
         {
-            throw new NotFoundException($"User with {userId} not found");
+            throw new UnprocessableEntityException("Already have processed laon");
         }
+
+        var deletedLoanId = await _loanRepository.RemoveLoanAsync(loanId, userId);
+
+        return new CreateLoanResponseBodyDTO
+        {
+            Id = deletedLoanId,
+        };
     }
-
-    private static GetLoanResponseBodyDTO LoanModeltoLoanDTO(Loan loan) => new()
-    {
-        FullName = loan.FullName,
-        LoanCreatedDate = loan.LoanCreatedDate,
-        LoanId = loan.LoanId,
-        LoanStatus = loan.LoanStatus,
-        UserId = loan.UserId,
-    };
-
-    private static GetLoanDetailResponseBodyDTO LoanDetailModeltoLoanDetailDTO(LoanDetail loanDetail) => new()
-    {
-        IsPrivateField = loanDetail.IsPrivateField,
-        ExpInYear = loanDetail.ExpInYear,
-        ActiveFieldNumber = loanDetail.ActiveFieldNumber,
-        SowSeedsPerCycle = loanDetail.SowSeedsPerCycle,
-        NeededFertilizerPerCycleInKg = loanDetail.NeededFertilizerPerCycleInKg,
-        EstimatedYieldInKg = loanDetail.EstimatedYieldInKg,
-        EstimatedPriceOfHarvestPerKg = loanDetail.EstimatedPriceOfHarvestPerKg,
-        HarvestCycleInMonths = loanDetail.HarvestCycleInMonths,
-        LoanApplicationInIdr = loanDetail.LoanApplicationInIdr,
-        BusinessIncomePerMonthInIdr = loanDetail.BusinessIncomePerMonthInIdr,
-        BusinessOutcomePerMonthInIdr = loanDetail.BusinessOutcomePerMonthInIdr,
-        LoanId = loanDetail.LoanId,
-        UserId = loanDetail.UserId,
-        FullName = loanDetail.FullName,
-        BirthDate = loanDetail.BirthDate,
-        FullAddress = loanDetail.FullAddress,
-        Phone = loanDetail.Phone,
-        OtherBusiness = loanDetail.OtherBusiness,
-        IdCardUrl = loanDetail.IdCardUrl,
-        Status = loanDetail.Status,
-    };
 }
