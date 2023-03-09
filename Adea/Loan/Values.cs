@@ -2,7 +2,7 @@
 
 namespace Adea.Loan;
 
-public class LoanApplication
+public class CreateLoanParam
 {
     public string FullName;
     public string BirthDate;
@@ -22,7 +22,7 @@ public class LoanApplication
     public int BusinessOutcomePerMonthInIdr;
     public IFormFile IdCard;
 
-    public LoanApplication(
+    public CreateLoanParam(
         string fullName,
         string birthDate,
         string fullAddress,
@@ -152,5 +152,15 @@ public class LoanDetail
         OtherBusiness = otherBusiness;
         IdCardUrl = idCardUrl;
         Status = status;
+    }
+}
+
+public class ApproveLoanParam
+{
+    public bool IsApprove;
+
+    public ApproveLoanParam(bool isApprove)
+    {
+        IsApprove = isApprove;
     }
 }

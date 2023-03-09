@@ -1,5 +1,7 @@
-﻿using Adea.DTO;
+﻿using Adea.Controllers;
+using Adea.DTO;
 using FluentValidation;
+using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
@@ -480,7 +482,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -502,7 +504,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "",
                     FullAddress = "Full Address",
@@ -524,7 +526,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "",
@@ -546,7 +548,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -568,7 +570,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -590,7 +592,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -612,7 +614,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -634,7 +636,7 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
                     HarvestCycleInMonths = 1,
                     LoanApplicationInIdr = 1,
                     BusinessIncomePerMonthInIdr = 1,
-                    BusinessOutcomePerMonthInIdr = -1,
+                    BusinessOutcomePerMonthInIdr = 1,
                     FullName = "Full Name",
                     BirthDate = "2006-01-02",
                     FullAddress = "Full Address",
@@ -653,5 +655,55 @@ public class LoanDTOValidationTests : IClassFixture<FileUploaderFixture>
         await Assert.ThrowsAsync<ValidationException>(async () => await validator.ValidateAndThrowAsync(request));
     }
 
+    [Fact]
+    public async Task Create_Loan_Request_Body_DTO_Validation_Success_Test()
+    {
+        var requestBody = new CreateLoanRequestBodyDTO
+        {
+            IsPrivateField = true,
+            ExpInYear = 1,
+            ActiveFieldNumber = 1,
+            SowSeedsPerCycle = 1,
+            NeededFertilizerPerCycleInKg = 1,
+            EstimatedYieldInKg = 1,
+            EstimatedPriceOfHarvestPerKg = 1,
+            HarvestCycleInMonths = 1,
+            LoanApplicationInIdr = 1,
+            BusinessIncomePerMonthInIdr = 1,
+            BusinessOutcomePerMonthInIdr = 1,
+            FullName = "Full Name",
+            BirthDate = "2006-01-02",
+            FullAddress = "Full Address",
+            Phone = "0000000000",
+            OtherBusiness = "-",
+            IdCard = _fileMock,
+        };
+        var validator = new CreateLoanRequestBodyDTOValidator();
+        var result = await validator.TestValidateAsync(requestBody);
+        Assert.True(result.IsValid);
+    }
+
+    public static IEnumerable<object[]> ApproveLoanValidationCases
+    => new object[][] {
+            new object[] {
+                new ApproveLoanRequestBodyDTO {
+                    IsApprove = true,
+                },
+            },
+            new object[] {
+                new ApproveLoanRequestBodyDTO {
+                    IsApprove = false,
+                },
+            },
+    };
+
+    [Theory]
+    [MemberData(nameof(ApproveLoanValidationCases))]
+    public async Task Approve_Loan_Request_Body_DTO_Validation_Success_Test(ApproveLoanRequestBodyDTO requestBody)
+    {
+        var validator = new ApproveLoanRequestBodyDTOValidator();
+        var result = await validator.TestValidateAsync(requestBody);
+        Assert.True(result.IsValid);
+    }
 }
 

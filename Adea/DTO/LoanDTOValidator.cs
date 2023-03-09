@@ -33,3 +33,11 @@ public class CreateLoanRequestBodyDTOValidator : AbstractValidator<CreateLoanReq
         RuleFor(v => v.IdCard).NotEmpty();
     }
 }
+
+public class ApproveLoanRequestBodyDTOValidator : AbstractValidator<ApproveLoanRequestBodyDTO>
+{
+    public ApproveLoanRequestBodyDTOValidator()
+    {
+        RuleFor(v => v.IsApprove).NotNull();
+    }
+}

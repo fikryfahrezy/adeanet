@@ -33,6 +33,25 @@ public class LoanController : ControllerBase
 
         return userId;
     }
+    private static CreateLoanParam CreateLoanDTOToModel(CreateLoanRequestBodyDTO createLoanRequest) => new(
+            fullName: createLoanRequest.FullName,
+            birthDate: createLoanRequest.BirthDate,
+            fullAddress: createLoanRequest.FullAddress,
+            phone: createLoanRequest.Phone,
+            otherBusiness: createLoanRequest.OtherBusiness,
+            isPrivateField: createLoanRequest.IsPrivateField,
+            expInYear: createLoanRequest.ExpInYear,
+            activeFieldNumber: createLoanRequest.ActiveFieldNumber,
+            sowSeedsPerCycle: createLoanRequest.SowSeedsPerCycle,
+            neededFertilizerPerCycleInKg: createLoanRequest.NeededFertilizerPerCycleInKg,
+            estimatedYieldInKg: createLoanRequest.EstimatedYieldInKg,
+            estimatedPriceOfHarvestPerKg: createLoanRequest.EstimatedPriceOfHarvestPerKg,
+            harvestCycleInMonths: createLoanRequest.HarvestCycleInMonths,
+            loanApplicationInIdr: createLoanRequest.LoanApplicationInIdr,
+            businessIncomePerMonthInIdr: createLoanRequest.BusinessIncomePerMonthInIdr,
+            businessOutcomePerMonthInIdr: createLoanRequest.BusinessOutcomePerMonthInIdr,
+            idCard: createLoanRequest.IdCard
+    );
 
     [HttpGet("get/{loanId}")]
     public async Task<ActionResult<GetLoanDetailResponseBodyDTO>> GetUserLoanApplicationAsync(string loanId)
@@ -64,15 +83,14 @@ public class LoanController : ControllerBase
 
         var loanApplication = CreateLoanDTOToModel(loanRequest);
 
-        return await _loanService.UpdateLoanAsync(userId, loanId, loanApplication);
+        return await _loanService.UpdateLoanAsync(loanId, userId, loanApplication);
     }
-
 
     [HttpPut("update/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> DeleteLoanApplicationAsync(string loanId)
     {
         var userId = GetUserId();
-        return await _loanService.DeleteLoanAsync(userId, loanId);
+        return await _loanService.DeleteLoanAsync(loanId, userId);
     }
 
     [HttpGet("getall/admin")]
@@ -87,23 +105,17 @@ public class LoanController : ControllerBase
         return await _loanService.GetLoanDetailAsync(loanId);
     }
 
-    private static LoanApplication CreateLoanDTOToModel(CreateLoanRequestBodyDTO createLoanRequest) => new(
-            fullName: createLoanRequest.FullName,
-            birthDate: createLoanRequest.BirthDate,
-            fullAddress: createLoanRequest.FullAddress,
-            phone: createLoanRequest.Phone,
-            otherBusiness: createLoanRequest.OtherBusiness,
-            isPrivateField: createLoanRequest.IsPrivateField,
-            expInYear: createLoanRequest.ExpInYear,
-            activeFieldNumber: createLoanRequest.ActiveFieldNumber,
-            sowSeedsPerCycle: createLoanRequest.SowSeedsPerCycle,
-            neededFertilizerPerCycleInKg: createLoanRequest.NeededFertilizerPerCycleInKg,
-            estimatedYieldInKg: createLoanRequest.EstimatedYieldInKg,
-            estimatedPriceOfHarvestPerKg: createLoanRequest.EstimatedPriceOfHarvestPerKg,
-            harvestCycleInMonths: createLoanRequest.HarvestCycleInMonths,
-            loanApplicationInIdr: createLoanRequest.LoanApplicationInIdr,
-            businessIncomePerMonthInIdr: createLoanRequest.BusinessIncomePerMonthInIdr,
-            businessOutcomePerMonthInIdr: createLoanRequest.BusinessOutcomePerMonthInIdr,
-            idCard: createLoanRequest.IdCard
-    );
+    [HttpPut("proceedloan/{loanId}")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> ProceedLoanApplicationAsync(string loanId)
+    {
+        var userId = GetUserId();
+        return await _loanService.ProceedLoanAsync(loanId, userId);
+    }
+
+    [HttpPut("approveloan/{loanId}")]
+    public async Task<ActionResult<CreateLoanResponseBodyDTO>> ApproveLoanApplicationAsync(string loanId, [FromBody] ApproveLoanRequestBodyDTO requestBody)
+    {
+        var userId = GetUserId();
+        return await _loanService.ApproveLoanAsync(loanId, userId, new ApproveLoanParam(requestBody.IsApprove));
+    }
 }

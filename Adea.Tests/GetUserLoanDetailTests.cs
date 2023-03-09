@@ -24,12 +24,12 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
 
-        var loanApplication = new LoanApplication(
+        var loanApplication = new CreateLoanParam(
             isPrivateField: true,
             expInYear: 1,
             activeFieldNumber: 1,
@@ -81,7 +81,7 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -89,7 +89,7 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
         var user2 = new RegisterUser("username2", "password", true);
         var newUser2ID = await userRepository.InsertUserAsync(user2);
 
-        var loanApplication = new LoanApplication(
+        var loanApplication = new CreateLoanParam(
             isPrivateField: true,
             expInYear: 1,
             activeFieldNumber: 1,
@@ -123,7 +123,7 @@ public class GetUserLoanDetailTests : IClassFixture<DatabaseFixture>, IClassFixt
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);

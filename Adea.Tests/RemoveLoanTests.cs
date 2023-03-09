@@ -24,7 +24,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -69,12 +69,12 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
 
-        var newLoan = new LoanApplication(
+        var newLoan = new CreateLoanParam(
             isPrivateField: true,
             expInYear: 1,
             activeFieldNumber: 1,
@@ -95,7 +95,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
          );
 
         var createdLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", newLoan);
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync("some-random-user-id", createdLoanID));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync(createdLoanID, "some-random-user-id"));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -107,12 +107,12 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
 
-        var newLoan = new LoanApplication(
+        var newLoan = new CreateLoanParam(
             isPrivateField: true,
             expInYear: 1,
             activeFieldNumber: 1,
@@ -133,7 +133,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
          );
 
         var createdLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", newLoan);
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync(newUserID, "some-random-loan-id"));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync("some-random-loan-id", newUserID));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -145,7 +145,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -153,7 +153,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         var user2 = new RegisterUser("username2", "password", true);
         var newUser2ID = await userRepository.InsertUserAsync(user2);
 
-        var newLoan = new LoanApplication(
+        var newLoan = new CreateLoanParam(
             isPrivateField: true,
             expInYear: 1,
             activeFieldNumber: 1,
@@ -174,7 +174,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
          );
 
         var createdLoanID = await loanRepository.InsertLoanAsync(newUserID, "https://random", newLoan);
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync(newUser2ID, createdLoanID));
+        await Assert.ThrowsAsync<NotFoundException>(async () => await service.DeleteLoanAsync(createdLoanID, newUser2ID));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -186,7 +186,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -217,7 +217,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         context.LoanApplications.Add(loanDAO);
         await context.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(newUserID, loanDAO.Id));
+        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(loanDAO.Id, newUserID));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -229,7 +229,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -260,7 +260,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         context.LoanApplications.Add(loanDAO);
         await context.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(newUserID, loanDAO.Id));
+        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(loanDAO.Id, newUserID));
 
         await _databaseFixture.ClearDB(context);
     }
@@ -272,7 +272,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
 
         var loanRepository = new LoanRepository(context);
         var userRepository = new UserRepository(context);
-        var service = new LoanService(loanRepository, _fileUploaderFixture);
+        var service = new LoanService(loanRepository, userRepository, _fileUploaderFixture);
 
         var user = new RegisterUser("username", "password", true);
         var newUserID = await userRepository.InsertUserAsync(user);
@@ -303,7 +303,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         context.LoanApplications.Add(loanDAO);
         await context.SaveChangesAsync();
 
-        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(newUserID, loanDAO.Id));
+        await Assert.ThrowsAsync<UnprocessableEntityException>(async () => await service.DeleteLoanAsync(loanDAO.Id, newUserID));
 
         await _databaseFixture.ClearDB(context);
     }

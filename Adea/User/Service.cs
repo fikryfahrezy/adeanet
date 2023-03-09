@@ -1,5 +1,4 @@
 using Adea.Common;
-using Adea.Models;
 using Adea.DTO;
 using Adea.Exceptions;
 
@@ -24,7 +23,7 @@ public class UserService
         }
     }
 
-    private async Task<UserDAO> GetUserByUsernameAsync(string username)
+    private async Task<Member> GetUserByUsernameAsync(string username)
     {
         var user = await _userRepository.GetUserByUsernameAsync(username);
 

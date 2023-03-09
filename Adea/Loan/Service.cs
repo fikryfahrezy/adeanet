@@ -1,20 +1,22 @@
 using Adea.Interface;
 using Adea.Models;
 using Adea.User;
-using Adea.DTO;
 using Adea.Exceptions;
+using Adea.DTO;
 
 namespace Adea.Loan;
 
 public class LoanService
 {
     private readonly LoanRepository _loanRepository;
+    private readonly UserRepository _userRepository;
     private readonly IFileUploader _fileUploader;
 
-    public LoanService(LoanRepository loanRepository, IFileUploader fileUploader)
+    public LoanService(LoanRepository loanRepository, UserRepository userRepository, IFileUploader fileUploader)
     {
         _loanRepository = loanRepository;
         _fileUploader = fileUploader;
+        _userRepository = userRepository;
     }
 
     private static GetLoanResponseBodyDTO LoanModeltoLoanDTO(Loan loan) => new()
@@ -50,6 +52,23 @@ public class LoanService
         Status = loanDetail.Status,
     };
 
+    private async Task<Member> CheckUserIfOfficerAsync(string userId)
+    {
+        var user = await _userRepository.GetUserByUserIdAsync(userId);
+
+        if (user == null)
+        {
+            throw new NotFoundException($"User with id {userId} not exist");
+        }
+
+        if (!user.IsOfficer)
+        {
+            throw new UnauthorizedAccessException("officer only");
+        }
+
+        return user;
+    }
+
     public async Task<List<GetLoanResponseBodyDTO>> GetUserLoansAsync(string userId)
     {
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
@@ -74,7 +93,7 @@ public class LoanService
         return LoanDetailModeltoLoanDetailDTO(loan);
     }
 
-    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, LoanApplication loanApplication)
+    public async Task<CreateLoanResponseBodyDTO> CreateLoanAsync(string userId, CreateLoanParam loanApplication)
     {
         var userLoans = await _loanRepository.GetUserLoansAsync(userId);
         foreach (var userLoan in userLoans)
@@ -98,12 +117,12 @@ public class LoanService
         };
     }
 
-    public async Task<CreateLoanResponseBodyDTO> UpdateLoanAsync(string userId, string loanId, LoanApplication loanApplication)
+    public async Task<CreateLoanResponseBodyDTO> UpdateLoanAsync(string loanId, string userId, CreateLoanParam loanApplication)
     {
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
         if (userLoan.Status != LoanStatus.Wait.ToString())
         {
-            throw new UnprocessableEntityException("Already have processed loan");
+            throw new UnprocessableEntityException("Cannot modify processed loan");
         }
 
         var idCardFilePath = await _fileUploader.UploadFileAsync(loanApplication.IdCard);
@@ -120,15 +139,52 @@ public class LoanService
         };
     }
 
-    public async Task<CreateLoanResponseBodyDTO> DeleteLoanAsync(string userId, string loanId)
+    public async Task<CreateLoanResponseBodyDTO> DeleteLoanAsync(string loanId, string userId)
     {
         var userLoan = await _loanRepository.GetUserLoanAsync(loanId, userId);
         if (userLoan.Status != LoanStatus.Wait.ToString())
         {
-            throw new UnprocessableEntityException("Already have processed laon");
+            throw new UnprocessableEntityException("Cannot modify processed loan");
         }
 
         var deletedLoanId = await _loanRepository.RemoveLoanAsync(loanId, userId);
+
+        return new CreateLoanResponseBodyDTO
+        {
+            Id = deletedLoanId,
+        };
+    }
+
+    public async Task<CreateLoanResponseBodyDTO> ProceedLoanAsync(string loanId, string userId)
+    {
+        await CheckUserIfOfficerAsync(userId);
+
+        var userLoan = await _loanRepository.GetLoanAsync(loanId);
+        if (userLoan.Status != LoanStatus.Wait.ToString())
+        {
+            throw new UnprocessableEntityException("Cannot modify processed loan");
+        }
+
+        var deletedLoanId = await _loanRepository.UpdateLoanStatusAsync(loanId, userId, LoanStatus.Process);
+
+        return new CreateLoanResponseBodyDTO
+        {
+            Id = deletedLoanId,
+        };
+    }
+
+    public async Task<CreateLoanResponseBodyDTO> ApproveLoanAsync(string loanId, string userId, ApproveLoanParam approveLoanParam)
+    {
+        await CheckUserIfOfficerAsync(userId);
+
+        var userLoan = await _loanRepository.GetLoanAsync(loanId);
+        if (userLoan.Status != LoanStatus.Process.ToString())
+        {
+            throw new UnprocessableEntityException("Cannot modify processed loan");
+        }
+
+        var newLoanStatus = approveLoanParam.IsApprove ? LoanStatus.Approve : LoanStatus.Reject;
+        var deletedLoanId = await _loanRepository.UpdateLoanStatusAsync(loanId, userId, newLoanStatus);
 
         return new CreateLoanResponseBodyDTO
         {

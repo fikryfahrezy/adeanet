@@ -143,3 +143,8 @@ public class GetLoanDetailResponseBodyDTO
     [JsonPropertyName("status")]
     public string Status { get; set; } = "";
 }
+public class ApproveLoanRequestBodyDTO
+{
+    [BindProperty(Name = "is_approve")]
+    public bool IsApprove { get; set; } = false;
+}

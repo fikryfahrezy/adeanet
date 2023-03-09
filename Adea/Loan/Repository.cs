@@ -15,7 +15,7 @@ public class LoanRepository
         _dbContext = dbContext;
     }
 
-    private static LoanApplicationDAO LoanModeltoDAO(string userId, string idCardUrl, LoanApplication loanApplication) => new()
+    private static LoanApplicationDAO LoanModeltoDAO(string userId, string idCardUrl, CreateLoanParam loanApplication) => new()
     {
         IsPrivateField = loanApplication.IsPrivateField,
         ExpInYear = loanApplication.ExpInYear,
@@ -74,7 +74,7 @@ public class LoanRepository
         return loanApplications.Select(LoanDAOtoLoanModel).ToList();
     }
 
-    public async Task<string> InsertLoanAsync(string userId, string idCardUrl, LoanApplication loanApplication)
+    public async Task<string> InsertLoanAsync(string userId, string idCardUrl, CreateLoanParam loanApplication)
     {
         var loan = LoanModeltoDAO(userId, idCardUrl, loanApplication);
         _dbContext.LoanApplications.Add(loan);
@@ -82,7 +82,7 @@ public class LoanRepository
 
         return loan.Id;
     }
-    public async Task<string> UpdateLoanAsync(string userId, string idCardUrl, string loanId, LoanApplication loanApplication)
+    public async Task<string> UpdateLoanAsync(string loanId, string userId, string idCardUrl, CreateLoanParam loanApplication)
     {
         var existingLoan = await _dbContext.LoanApplications.Where(l => l.Id == loanId && l.UserId == userId).FirstOrDefaultAsync();
         if (existingLoan is null)
@@ -151,5 +151,22 @@ public class LoanRepository
         await _dbContext.SaveChangesAsync();
 
         return loan.Id;
+    }
+
+
+    public async Task<string> UpdateLoanStatusAsync(string loanId, string officerId, LoanStatus loanStatus)
+    {
+        var existingLoan = await _dbContext.LoanApplications.Where(l => l.Id == loanId).FirstOrDefaultAsync();
+        if (existingLoan is null)
+        {
+            throw new NotFoundException($"Loan with {loanId} not found");
+        }
+
+        existingLoan.OfficerId = officerId;
+        existingLoan.Status = loanStatus.ToString();
+
+        await _dbContext.SaveChangesAsync();
+
+        return loanId;
     }
 }

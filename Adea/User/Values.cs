@@ -24,3 +24,19 @@ public class LoginUser
         Password = password;
     }
 }
+
+public class Member
+{
+    public string Id;
+    public string Username;
+    public string Password;
+    public bool IsOfficer;
+
+    public Member(string id, string username, string password, bool isOfficer)
+    {
+        Id = id;
+        Username = username;
+        Password = password;
+        IsOfficer = isOfficer;
+    }
+}
