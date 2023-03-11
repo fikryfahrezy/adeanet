@@ -102,7 +102,8 @@ public class GetUserLoansTests : IClassFixture<DatabaseFixture>, IClassFixture<F
             IdCardUrl = "http://random",
         };
 
-        await Assert.ThrowsAsync<NotFoundException>(async () => await service.GetUserLoansAsync("some-random-user-id"));
+        var userLoans = await service.GetUserLoansAsync("some-random-user-id");
+        Assert.Empty(userLoans);
 
         await _databaseFixture.ClearDB(context);
     }

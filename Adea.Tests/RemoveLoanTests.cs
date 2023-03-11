@@ -55,7 +55,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
         context.LoanApplications.Add(loanDAO);
         await context.SaveChangesAsync();
 
-        var deletedLoan = await service.DeleteLoanAsync(newUserID, loanDAO.Id);
+        var deletedLoan = await service.DeleteLoanAsync(loanDAO.Id, newUserID);
         Assert.Equal(loanDAO.Id, deletedLoan.Id);
 
         await Assert.ThrowsAsync<NotFoundException>(async () => await loanRepository.GetLoanAsync(loanDAO.Id));
@@ -223,7 +223,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
     }
 
     [Fact]
-    public async Task Delete_Loan_With_Process_Status_Reject_Test()
+    public async Task Delete_Loan_With_Process_Status_Reject_Fail_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
@@ -266,7 +266,7 @@ public class RemoveLoanTests : IClassFixture<DatabaseFixture>, IClassFixture<Fil
     }
 
     [Fact]
-    public async Task Delete_Loan_With_Process_Status_Approve_Test()
+    public async Task Delete_Loan_With_Process_Status_Approve_Fail_Test()
     {
         using var context = _databaseFixture.CreateContext();
 
