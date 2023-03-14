@@ -1,5 +1,5 @@
 using Adea.Common;
-using Adea.DTO;
+using Adea.Controllers;
 using Adea.Exceptions;
 
 namespace Adea.User;

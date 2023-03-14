@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 
-namespace Adea.DTO;
+namespace Adea.Controllers;
 
 public class RegisterRequestBodyDTO
 {
@@ -40,4 +40,10 @@ public class LoginResponseBodyDTO
 
     [JsonPropertyName("is_officer")]
     public bool IsOfficer { get; set; }
+}
+
+public class AuthResponseBodyDTO
+{
+    [JsonPropertyName("token")]
+    public string Token { get; set; } = "";
 }

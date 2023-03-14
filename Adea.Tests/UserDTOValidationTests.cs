@@ -1,5 +1,4 @@
 ﻿using Adea.Controllers;
-using Adea.DTO;
 using FluentValidation;
 using Xunit;
 

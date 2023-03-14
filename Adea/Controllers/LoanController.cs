@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using Adea.DTO;
 using Adea.Loan;
 using Adea.Exceptions;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Adea.Controllers;
 
+[Authorize]
 [Route("[controller]")]
 public class LoanController : ControllerBase
 {
@@ -86,7 +87,7 @@ public class LoanController : ControllerBase
         return await _loanService.UpdateLoanAsync(loanId, userId, loanApplication);
     }
 
-    [HttpPut("update/{loanId}")]
+    [HttpPut("delete/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> DeleteLoanApplicationAsync(string loanId)
     {
         var userId = GetUserId();
@@ -105,14 +106,14 @@ public class LoanController : ControllerBase
         return await _loanService.GetLoanDetailAsync(loanId);
     }
 
-    [HttpPut("proceedloan/{loanId}")]
+    [HttpPatch("proceedloan/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> ProceedLoanApplicationAsync(string loanId)
     {
         var userId = GetUserId();
         return await _loanService.ProceedLoanAsync(loanId, userId);
     }
 
-    [HttpPut("approveloan/{loanId}")]
+    [HttpPatch("approveloan/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> ApproveLoanApplicationAsync(string loanId, [FromBody] ApproveLoanRequestBodyDTO requestBody)
     {
         var userId = GetUserId();

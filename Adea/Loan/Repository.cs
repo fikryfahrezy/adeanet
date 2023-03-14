@@ -1,11 +1,10 @@
 using Adea.Data;
-using Adea.DTO;
 using Adea.Exceptions;
 using Adea.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Numerics;
 
 namespace Adea.Loan;
+
 public class LoanRepository
 {
     private readonly LoanLosDbContext _dbContext;
