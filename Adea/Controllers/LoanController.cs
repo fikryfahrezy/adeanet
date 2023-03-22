@@ -3,6 +3,7 @@ using Adea.Loan;
 using Adea.Exceptions;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Adea.Controllers;
 
@@ -17,16 +18,9 @@ public class LoanController : ControllerBase
         _loanService = loanService;
     }
 
-    [HttpGet("getall")]
-    public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetUserLoanApplicationsAsync()
-    {
-        var userId = GetUserId();
-        return await _loanService.GetUserLoansAsync(userId);
-    }
-
     private string GetUserId()
     {
-        var userId = Request.Headers.Authorization.FirstOrDefault();
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null)
         {
             throw new UnprocessableEntityException("Authorization required");
@@ -34,6 +28,7 @@ public class LoanController : ControllerBase
 
         return userId;
     }
+
     private static CreateLoanParam CreateLoanDTOToModel(CreateLoanRequestBodyDTO createLoanRequest) => new(
             fullName: createLoanRequest.FullName,
             birthDate: createLoanRequest.BirthDate,
@@ -53,6 +48,14 @@ public class LoanController : ControllerBase
             businessOutcomePerMonthInIdr: createLoanRequest.BusinessOutcomePerMonthInIdr,
             idCard: createLoanRequest.IdCard
     );
+
+
+    [HttpGet("getall")]
+    public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetUserLoanApplicationsAsync()
+    {
+        var userId = GetUserId();
+        return await _loanService.GetUserLoansAsync(userId);
+    }
 
     [HttpGet("get/{loanId}")]
     public async Task<ActionResult<GetLoanDetailResponseBodyDTO>> GetUserLoanApplicationAsync(string loanId)
@@ -94,18 +97,21 @@ public class LoanController : ControllerBase
         return await _loanService.DeleteLoanAsync(loanId, userId);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("getall/admin")]
     public async Task<ActionResult<IEnumerable<GetLoanResponseBodyDTO>>> GetLoanAsync()
     {
         return await _loanService.GetLoansAsync();
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpGet("get/admin/{loanId}")]
     public async Task<ActionResult<GetLoanDetailResponseBodyDTO>> GetLoanAsync(string loanId)
     {
         return await _loanService.GetLoanDetailAsync(loanId);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPatch("proceedloan/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> ProceedLoanApplicationAsync(string loanId)
     {
@@ -113,6 +119,7 @@ public class LoanController : ControllerBase
         return await _loanService.ProceedLoanAsync(loanId, userId);
     }
 
+    [Authorize(Policy = "AdminOnly")]
     [HttpPatch("approveloan/{loanId}")]
     public async Task<ActionResult<CreateLoanResponseBodyDTO>> ApproveLoanApplicationAsync(string loanId, [FromBody] ApproveLoanRequestBodyDTO requestBody)
     {

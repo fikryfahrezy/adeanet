@@ -21,37 +21,37 @@ public class CreateLoanRequestBodyDTO
     public string OtherBusiness { get; set; } = "";
 
     [BindProperty(Name = "is_private_field")]
-    public bool IsPrivateField { get; set; } = false;
+    public bool IsPrivateField { get; set; }
 
     [BindProperty(Name = "exp_in_year")]
-    public short ExpInYear { get; set; } = 0;
+    public short ExpInYear { get; set; }
 
     [BindProperty(Name = "active_field_number")]
-    public short ActiveFieldNumber { get; set; } = 0;
+    public short ActiveFieldNumber { get; set; }
 
     [BindProperty(Name = "sow_seeds_per_cycle")]
-    public short SowSeedsPerCycle { get; set; } = 0;
+    public short SowSeedsPerCycle { get; set; }
 
     [BindProperty(Name = "needed_fertilizer_per_cycle_in_kg")]
-    public short NeededFertilizerPerCycleInKg { get; set; } = 0;
+    public short NeededFertilizerPerCycleInKg { get; set; }
 
     [BindProperty(Name = "estimated_yield_in_kg")]
-    public short EstimatedYieldInKg { get; set; } = 0;
+    public short EstimatedYieldInKg { get; set; }
 
     [BindProperty(Name = "estimated_price_of_harvest_per_kg")]
-    public short EstimatedPriceOfHarvestPerKg { get; set; } = 0;
+    public short EstimatedPriceOfHarvestPerKg { get; set; }
 
     [BindProperty(Name = "harvest_cycle_in_months")]
-    public short HarvestCycleInMonths { get; set; } = 0;
+    public short HarvestCycleInMonths { get; set; }
 
     [BindProperty(Name = "loan_application_in_idr")]
-    public int LoanApplicationInIdr { get; set; } = 0;
+    public int LoanApplicationInIdr { get; set; }
 
     [BindProperty(Name = "business_income_per_month_in_idr")]
-    public int BusinessIncomePerMonthInIdr { get; set; } = 0;
+    public int BusinessIncomePerMonthInIdr { get; set; }
 
     [BindProperty(Name = "business_outcome_per_month_in_idr")]
-    public int BusinessOutcomePerMonthInIdr { get; set; } = 0;
+    public int BusinessOutcomePerMonthInIdr { get; set; }
 
     [BindProperty(Name = "id_card")]
     public IFormFile? IdCard { get; set; } = null;
@@ -84,37 +84,37 @@ public class GetLoanResponseBodyDTO
 public class GetLoanDetailResponseBodyDTO
 {
     [JsonPropertyName("is_private_field")]
-    public bool IsPrivateField { get; set; } = false;
+    public bool IsPrivateField { get; set; }
 
     [JsonPropertyName("exp_in_year")]
-    public long ExpInYear { get; set; } = 0;
+    public long ExpInYear { get; set; }
 
     [JsonPropertyName("active_field_number")]
-    public long ActiveFieldNumber { get; set; } = 0;
+    public long ActiveFieldNumber { get; set; }
 
     [JsonPropertyName("sow_seeds_per_cycle")]
-    public long SowSeedsPerCycle { get; set; } = 0;
+    public long SowSeedsPerCycle { get; set; }
 
     [JsonPropertyName("needed_fertilizer_per_cycle_in_kg")]
-    public long NeededFertilizerPerCycleInKg { get; set; } = 0;
+    public long NeededFertilizerPerCycleInKg { get; set; }
 
     [JsonPropertyName("estimated_yield_in_kg")]
-    public long EstimatedYieldInKg { get; set; } = 0;
+    public long EstimatedYieldInKg { get; set; }
 
     [JsonPropertyName("estimated_price_of_harvest_per_kg")]
-    public long EstimatedPriceOfHarvestPerKg { get; set; } = 0;
+    public long EstimatedPriceOfHarvestPerKg { get; set; }
 
     [JsonPropertyName("harvest_cycle_in_months")]
-    public long HarvestCycleInMonths { get; set; } = 0;
+    public long HarvestCycleInMonths { get; set; }
 
     [JsonPropertyName("loan_application_in_idr")]
-    public long LoanApplicationInIdr { get; set; } = 0;
+    public long LoanApplicationInIdr { get; set; }
 
     [JsonPropertyName("business_income_per_month_in_idr")]
-    public long BusinessIncomePerMonthInIdr { get; set; } = 0;
+    public long BusinessIncomePerMonthInIdr { get; set; }
 
     [JsonPropertyName("business_outcome_per_month_in_idr")]
-    public long BusinessOutcomePerMonthInIdr { get; set; } = 0;
+    public long BusinessOutcomePerMonthInIdr { get; set; }
 
     [JsonPropertyName("loan_id")]
     public string LoanId { get; set; } = "";
@@ -146,5 +146,5 @@ public class GetLoanDetailResponseBodyDTO
 public class ApproveLoanRequestBodyDTO
 {
     [BindProperty(Name = "is_approve")]
-    public bool IsApprove { get; set; } = false;
+    public bool IsApprove { get; set; }
 }

@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using Adea.Options;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
-using System.Runtime.Intrinsics.X86;
 
 namespace Adea.Controllers;
 
@@ -24,13 +23,18 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
-    private string GenerateJWT(string userId)
+    private string GenerateJWT(string userId, bool isAdmin)
     {
         List<Claim> claims = new()
         {
-            new Claim(ClaimTypes.Name, userId)
+            new Claim(ClaimTypes.NameIdentifier, userId),
         };
-        Console.WriteLine(_config.Value.Jwt.IssuerSigningKey);
+
+        if (isAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Value.Jwt.IssuerSigningKey));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
         var token = new JwtSecurityToken(
@@ -45,9 +49,9 @@ public class AuthController : ControllerBase
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    private AuthResponseBodyDTO AuthResponse(string userId) => new()
+    private AuthResponseBodyDTO AuthResponse(string userId, bool isAdmin) => new()
     {
-        Token = GenerateJWT(userId),
+        Token = GenerateJWT(userId, isAdmin),
     };
 
     [HttpPost("register")]
@@ -59,7 +63,7 @@ public class AuthController : ControllerBase
         var registerUser = new RegisterUser(requestBody.Username, requestBody.Password, requestBody.IsOfficer);
         var registeredUser = await _userService.RegisterUserAsync(registerUser);
 
-        return AuthResponse(registeredUser.Id);
+        return AuthResponse(registeredUser.Id, registeredUser.IsOfficer);
     }
 
     [HttpPost("login")]
@@ -71,6 +75,6 @@ public class AuthController : ControllerBase
         var loginUser = new LoginUser(requestBody.Username, requestBody.Password);
         var loggedInUser = await _userService.LoginUserAsync(loginUser);
 
-        return AuthResponse(loggedInUser.Id);
+        return AuthResponse(loggedInUser.Id, loggedInUser.IsOfficer);
     }
 }

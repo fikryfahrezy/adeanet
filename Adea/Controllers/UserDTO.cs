@@ -1,18 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Adea.Controllers;
 
 public class RegisterRequestBodyDTO
 {
-    [BindProperty(Name = "username")]
+    [JsonPropertyName("username")]
     public string Username { get; set; } = "";
 
-    [BindProperty(Name = "password")]
+    [JsonPropertyName("password")]
     public string Password { get; set; } = "";
 
-    [BindProperty(Name = "is_officer")]
-    public bool IsOfficer { get; set; } = false;
+    [JsonPropertyName("is_officer")]
+    public bool IsOfficer { get; set; }
 }
 
 public class RegisterResponseBodyDTO
@@ -26,10 +25,10 @@ public class RegisterResponseBodyDTO
 
 public class LoginRequestBodyDTO
 {
-    [BindProperty(Name = "username")]
+    [JsonPropertyName("username")]
     public string Username { get; set; } = "";
 
-    [BindProperty(Name = "password")]
+    [JsonPropertyName("password")]
     public string Password { get; set; } = "";
 }
 

@@ -54,7 +54,6 @@ public class UserService
             config: null
         );
 
-
         var newUserID = await _userRepository.InsertUserAsync(new RegisterUser(
             username: request.Username,
             password: hashedPassword,

@@ -10,8 +10,8 @@ using Adea.Options;
 using Adea.Interface;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using static Adea.Common.RequestFieldMap;
 using System.Text;
+using static Adea.Common.RequestFieldMap;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,11 @@ builder.Services.AddOptions<AppEnvOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     var jwtOptions = builder.Configuration.GetSection(AppEnvOptions.AppEnv).Get<AppEnvOptions>()!;
@@ -39,36 +43,30 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
 });
 
 builder.Services.AddDbContext<LoanLosDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("LoanDatabase")));
+builder.Services.AddHealthChecks().AddDbContextCheck<LoanLosDbContext>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
-        Name = "Bearer",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
         BearerFormat = "JWT",
-        Scheme = "bearer",
-        Description = "Specify the authorization token.",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
                     Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-
+                        Id = "Bearer"
+                }
             },
-            new List<string>()
+            new string[] {}
         }
     });
 });
@@ -117,5 +115,6 @@ app.UseSwaggerUI();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapHealthChecks("/healthz");
 app.MapControllers();
 app.Run();
