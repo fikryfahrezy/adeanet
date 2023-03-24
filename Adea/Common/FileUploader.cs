@@ -1,22 +1,27 @@
-using Microsoft.Extensions.Options;
-using Adea.Exceptions;
 using Adea.Interface;
 using Adea.Options;
+using Microsoft.Extensions.Options;
 
 namespace Adea.Common;
 
 public class FileUploader : IFileUploader
 {
-    private readonly string _uploadPath;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly IOptions<AppEnvOptions> _config;
 
-    public FileUploader(IOptions<AppEnvOptions> config)
+    public FileUploader(IOptions<AppEnvOptions> config, IWebHostEnvironment webHostEnvironment)
     {
-        _uploadPath = config.Value.UploadDestinationPath;
+        _webHostEnvironment = webHostEnvironment;
+        _config = config;
     }
 
     public async Task<string> UploadFileAsync(IFormFile file)
     {
-        var filePath = Path.Combine(_uploadPath, Path.GetRandomFileName() + file.FileName);
+        var filePath = Path.Combine(
+            _webHostEnvironment.WebRootPath,
+            _config.Value.UploadDestinationDirname,
+            Path.GetRandomFileName() + "-" + file.FileName
+        );
         using (var stream = File.Create(filePath))
         {
             await file.CopyToAsync(stream);

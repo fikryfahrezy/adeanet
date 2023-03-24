@@ -34,10 +34,10 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
         ValidateAudience = true,
         ValidateIssuerSigningKey = true,
         ValidateLifetime = true,
-        ValidAudiences = jwtOptions.Jwt.ValidAudiences,
-        ValidIssuer = jwtOptions.Jwt.ValidIssuer,
+        ValidAudiences = jwtOptions.JwtValidAudiences,
+        ValidIssuer = jwtOptions.JwtValidIssuer,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(jwtOptions.Jwt.IssuerSigningKey)
+            Encoding.UTF8.GetBytes(jwtOptions.JwtIssuerSigningKey)
         )
     };
 });
@@ -110,6 +110,17 @@ builder.Services.Configure<ApiBehaviorOptions>(options => options.SuppressModelS
 
 var app = builder.Build();
 
+
+// Migrate latest database changes during startup
+// Not recommended way, but for dev purpose is file
+// https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli#apply-migrations-at-runtime
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<LoanLosDbContext>();
+    dbContext.Database.Migrate();
+}
+
+app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();

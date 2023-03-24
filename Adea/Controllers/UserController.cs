@@ -35,13 +35,13 @@ public class AuthController : ControllerBase
             claims.Add(new Claim(ClaimTypes.Role, "Admin"));
         }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Value.Jwt.IssuerSigningKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.Value.JwtIssuerSigningKey));
         var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
         var token = new JwtSecurityToken(
             claims: claims,
             expires: DateTime.Now.AddMinutes(30),
-            issuer: _config.Value.Jwt.ValidIssuer,
-            audience: _config.Value.Jwt.ValidAudiences.FirstOrDefault(),
+            issuer: _config.Value.JwtValidIssuer,
+            audience: _config.Value.JwtValidAudiences.FirstOrDefault(),
             notBefore: DateTime.Now,
             signingCredentials: cred
         );
